@@ -13,6 +13,10 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/chat-example/index.html');
 });
 
+app.get('/privacy', function(req, res){
+    res.sendFile(__dirname + '/public/privacy_policy.html');
+});
+
 io.on('connection', function(socket){
 
     console.log('a user connected');
