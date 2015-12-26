@@ -1,8 +1,8 @@
 /**
  * Created by Hila on 23/12/2015.
  */
-
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
