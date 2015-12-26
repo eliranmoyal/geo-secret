@@ -36,7 +36,7 @@ module.exports =  function(){
      * @returns {string} - the token
      */
     function getFacebookToken(facebook_id){
-        // todo: implement and move somewhere else
+        // todo: implement
         var token = '';
         return token;
     }
@@ -47,7 +47,7 @@ module.exports =  function(){
      * @returns {string}
      */
     function getUserCityByFacebookID(facebook_id){
-        // todo: implement and move somewhere else
+        // todo: implement
         var token = getFacebookToken(facebook_id);
         var city = '';
         return city.toLowerCase();

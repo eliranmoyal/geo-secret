@@ -6,8 +6,10 @@ module.exports =  function(socket) {
 
     this.client_socket = socket;
 
-    /*
-    First connection to the server, transform to the server the facebook_id and public_key of the user.
+    /***
+     * First connection to the server, sends to the server the facebook_id and public_key of the user.
+     * @param facebook_id
+     * @param public_key
      */
     function connectServer(facebook_id, public_key){
 
@@ -19,8 +21,9 @@ module.exports =  function(socket) {
         this.client_socket.emit("CONNECT", msg.toJSON());
     };
 
-    /*
-    Asks from the server the public key list of the current group on secret.
+    /***
+     * Asks from the server the public key list of the current group on secret.
+     * @param facebook_id
      */
     function getPublicKeysFromServer(facebook_id){
 
@@ -31,8 +34,11 @@ module.exports =  function(socket) {
         });
     }
 
-    /*
-    Send a message to the group
+    /***
+     *  Send a message to the group
+     * @param public_keys
+     * @param msg
+     * @param sign
      */
     function sendMessage(public_keys, msg, sign){
 
@@ -44,9 +50,9 @@ module.exports =  function(socket) {
         this.client_socket.emit("SEND_MSG", msg_obj.toJSON());
     };
 
-    /*
-    Receive a message from the group
-    @returns JSON object: {public_keys, msg, sign}
+    /***
+     * Receive a message from the group
+     * @returns JSON object: {public_keys, msg, sign}
      */
     function receiveMessage(){
 
@@ -56,6 +62,9 @@ module.exports =  function(socket) {
 
     };
 
+    /***
+     *  Exports the functions for the client use - connecting the server, receiving public keys of the group, send and receive a message.
+     */
     return {
         connectServer:connectServer,
         getPublicKeysFromServer:getPublicKeysFromServer,
