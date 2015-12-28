@@ -9,8 +9,13 @@ var io = require('socket.io')(http);
 app.set('port', (process.env.PORT || 3000));
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function(req, res){
+app.get('/chat_example', function(req, res){
     res.sendFile(__dirname + '/chat-example/index.html');
+});
+
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/privacy', function(req, res){

@@ -1,21 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Secert</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
-    </style>
-</head>
-<body>
-<script>
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '518593481648073',
@@ -31,6 +13,7 @@
      js.src = "//connect.facebook.net/en_US/sdk.js";
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
+
 function statusChangeCallback(response) {
     console.log('statusChangeCallback');
     console.log(response);
@@ -40,7 +23,7 @@ function statusChangeCallback(response) {
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
       // Logged into your app and Facebook.
-      testAPI();
+      openSecret();
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
       document.getElementById('status').innerHTML = 'Please log ' +
@@ -62,33 +45,35 @@ function statusChangeCallback(response) {
     });
   }
 
-   function testAPI() {
+  function openSecret() {
     console.log('Welcome!  Fetching your information.... ');
+    $('#login-container').addClass("animated").addClass("fadeOutUpBig");
+    setTimeout(function() {
+      $('#login-container').remove();
+      $('#main-container').removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
+    }, 200);
+    
     FB.api('/me', function(response) {
       console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
+      var li = $('<li>');
+      var img = "http://graph.facebook.com/" + response.id + "/picture?type=square";
+      li.append($('<img>').attr("src",img));
+      li.append(response.name);
+      $('#facebook_connected_list').append(li);
+      console.log(response);
+      /*document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';*/
     });
   }
+function login () {
+  console.log("attempting login");
+  FB.login(function(response) {
+    console.log("login response");
+    console.log(response);
+      if (response.authResponse) {
+        checkLoginState();
+      }
+    });
 
-</script>
-    <ul id="messages"></ul>
-    <form action="">
-        <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        var socket = io();
-        $('form').submit(function(){
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg));
-        });
-    </script>
-
-</body>
-</html>
+}
+      
