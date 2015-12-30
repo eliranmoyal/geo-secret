@@ -147,6 +147,7 @@ module.exports =  function(){
             user_info.user_city = user_city;
             user_info.user_socket = socket;
             users[user_city].push(user_info);
+            //todo: hila publish to other users (add facebook id)
         });
     };
 
@@ -184,6 +185,7 @@ module.exports =  function(){
 
             //remove the user from the users array.
             removeUserBySocket(socket);
+            //todo: hila. publish to other users that he left(facebookid)
         });
     };
 
