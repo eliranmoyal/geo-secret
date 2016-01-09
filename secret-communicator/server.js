@@ -14,6 +14,9 @@ module.exports =  function(){
     var app = express();
     var http = require('http').Server(app);
     var io = require('socket.io')(http);
+    var myDB = require('server_db');
+
+    myDB.init();
 
     app.set('port', (process.env.PORT || 3000));
     app.use("/css",express.static(__dirname +"/css"));
@@ -29,79 +32,77 @@ module.exports =  function(){
         res.sendFile(__dirname + '/privacy_policy.html');
     });
 
+    // todo: decide whether we want those pages or not.
+    /*app.get('/joinRing', function(req,res){
+        res.sendFile(__dirname + '/join_ring.html');
+    });
+
+    app.get('/chat', function(req,res){
+        res.sendFile(__dirname + '/chat.html');
+    });*/
+
     var users = [];
+    var sockets_by_ring = [];
 
     /*******************************Help Methods********************************/
 
     /***
-     *  Get's the token of a facebook user by facebook_id
-     * @param facebook_id
-     * @returns {string} - the token
      */
-    function getFacebookToken(facebook_id){
+    function validateUserToken(social_id,social_type,token){
         // todo: implement
-        var token = '';
-        return token;
+        return true;
     }
 
     /***
-     * Get's the city of a facebook user by facebook_id
-     * @param facebook_id
-     * @returns {string}
-     */
-    function getUserCityByFacebookID(facebook_id){
-        // todo: implement
-        var token = getFacebookToken(facebook_id);
-        var city = '';
-        return city.toLowerCase();
-    }
-
-    /***
-     * Removes from users a user by its socket. should be called when a user is disconnected.
-     * @param socket - the disconnected user's socket
-     */
-    function removeUserBySocket(socket){
-
-        for (var users_by_city in users){
-            for (var j =0; j < users_by_city.length; j++) {
-                if (users_by_city[j].user_socket == socket){
-                    delete users_by_city[j]; //todo: check the delete part
-                    break;
-                }
-            }
-        }
-    }
-
-    /***
-     * Get the city of a user by it's socket
-     * @param socket - the user's socket.
-     * @returns {Function|Buffer.toString} - the city name
-     */
-    function getUserCityBySocket(socket){
-
-        for (var users_by_city in users){
-            for (var j =0; j < users_by_city.length; j++) {
-                if (users_by_city[j].user_socket == socket){
-                    return users_by_city.name.toString // todo: check the name part
-                }
-            }
-        }
-    }
-
-    /***
-     * Finds the public keys of a group by city and returns them.
-     * @param city
+     * Finds the public keys of a group by ring and returns them.
+     * @param ring
      * @returns {Array} - the public keys
      */
-    function getPublicKeysOfGroup(city){
+    function getPublicKeysOfRing(ring){
 
+        // todo: read from db instead
+        //myDB.getPublicKeysByRing(ring);
         var public_keys = [];
 
-        for (var user in users[city.toLowerCase()]){
+        for (var user in users[ring.toLowerCase()]){
             public_keys.push(user.public_key);
         }
 
         return public_keys;
+    }
+
+    /***
+     * Finds the users social info of a group by ring and returns them.
+     * @param ring
+     * @returns {Array}
+     */
+    function getUsersSocialInfoByRing(ring){
+
+        var ring_users_info = [];
+
+        // todo: read from db instead
+        //myDB.getUsersSocialInfoByRing(ring);
+
+        for (var user in users[ring.toLowerCase()]){
+            var user_info = {
+                social_id: user.social_id,
+                social_type: user.social_type
+            }
+
+            ring_users_info.push(user_info);
+        }
+
+        return ring_users_info;
+    }
+
+    /***
+     * Adds an active socket of a user to sockets_by_ring
+     * @param ring
+     * @param user_socket
+     */
+    function addUserSocketByRing(ring, user_socket){
+
+        sockets_by_ring[ring.toLowerCase()].push(user_socket);
     }
 
     /******************************Main running method********************************/
@@ -124,84 +125,100 @@ module.exports =  function(){
      *  Handles the connection, the user messages and disconnection.
      */
     function newConnection(){
-        io.on('connection', function(socket){
 
-            handleUserConnection(socket);
-            handleUserMessage(socket);
-            handleUserDisconnection(socket);
+        // handle connection of /joinRing
+        io.of('/joinRing').on('connection', function(socket){
 
+            joinRing(socket.handshake.query);
         });
+
+        // handle connection of /chat
+        io.of('/chat').on('connection', function(socket){
+
+            // Add the user socket to the users list by the token
+            addUserSocketByRing(socket.handshake.query.ring, socket);
+            handleUserMessage(socket, socket.handshake.query.ring);
+        })
     };
 
     /***
-     * Receives the CONNECT msg of a new user and saves it's info in users[].
-     * @param socket - the user's socket
+     * Handle a first join to a ring
+     * @param user_params - the params from the url query {social_id,social_type,public_key,ring,token}.
      */
-    function handleUserConnection(socket){
-        console.log('a user connected');
-        socket.on("CONNECT", function(msg){
+    function joinRing(user_params){
+        console.log('a user joined a ring');
 
-            var user_info = JSON.parse(msg);
-            var user_city = getUserCityByFacebookID(user_info.facebook_id);
+        var user = {
+            social_id: user_params.social_id,
+            social_type: user_params.social_type,
+            public_key: user_params.public_key,
+            ring: user_params.ring
+        };
 
-            user_info.user_city = user_city;
-            user_info.user_socket = socket;
-            users[user_city].push(user_info);
-            //todo: hila publish to other users (add facebook id)
-        });
+
+        if(users.indexOf(user.ring) == -1){ //First initialization of a ring
+            users[user.ring] = [];
+        }
+
+        if (!validateUserToken(user_params.token)){
+            return;
+        }
+
+        // todo: write to db instead
+        //myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.ring);
+        users[user.ring].push(user);
+
+        // Publish to every ring member the new user details
+
+        var user_to_publish = {
+            social_id: user.social_id,
+            social_type: user.social_type,
+            public_key: user.public_key
+        }
+
+        broadcastRingMessage("NEW_USER",user_to_publish, user.ring, socket);
+
     };
 
     /***
-     *  Handles user's messages - SEND_MSG (broadcast message to the group) and PUBLIC_KEYS (return to the user the public keys of it's group).
-     * @param socket - the user's socket
+     * Handles user's messages- SEND_MSG (broadcast message to the ring group)
+     * PUBLIC_KEYS (return to the user the public keys of it's group).
+     * GET_USERS (return to the user the ring's users info).
+     * @param socket
+     * @param ring
      */
-    function handleUserMessage(socket){
-        //todo: remove this later <only before my tests using client.js>
-        socket.on('chat message', function(msg){
-            console.log('message: ' + msg);
-            broadcastGroupMessage(msg, socket);
-        });
+    function handleUserMessage(socket, ring){
 
         socket.on("SEND_MSG", function(msg){
             console.log('message: ' + msg);
-            broadcastGroupMessage(msg, socket);
+            broadcastRingMessage("RECEIVE_MSG", msg, ring, socket);
         });
 
-        socket.on("PUBLIC_KEYS", function(facebook_id){
-            var group_city = getUserCityByFacebookID(facebook_id);
-            var public_keys = getPublicKeysOfGroup(group_city);
+        socket.on("PUBLIC_KEYS", function(){
+            var public_keys = getPublicKeysOfRing(ring);
             socket.emit("PUBLIC_KEYS", public_keys);
         });
 
-    };
-
-    /***
-     *  Handle a disconnection of a user - remove him from the list users[].
-     * @param socket
-     */
-    function handleUserDisconnection(socket){
-        socket.on('disconnect', function(){
-            console.log('user disconnected');
-
-            //remove the user from the users array.
-            removeUserBySocket(socket);
-            //todo: hila. publish to other users that he left(facebookid)
+        socket.on("GET_USERS", function(){
+           var ring_users = getUsersSocialInfoByRing(ring);
+            socket.emit("GET_USERS", ring_users);
         });
+
     };
 
     /***
-     * Sending a message to all of the users.
-     * @param msg - the message to send
-     * @param socket - the sending user's socket
+     * Sending a message to all of the users of ring group.
+     * @param msg_type - type of message to broadcast.
+     * @param msg - the msg to send.
+     * @param ring
+     * @param socket - the current user socket (to make sure we don't send him the message too.
      */
-    function broadcastGroupMessage(msg, socket){
-        io.emit('chat message', msg); //todo: remove this line
+    function broadcastRingMessage(msg_type, msg, ring, socket){
 
-        var city = getUserCityBySocket(socket);
-        for (var user in users[city]) {
+        for (var ring_socket in sockets_by_ring[ring]) {
 
-            if (user.user_socket != socket) {
-                user.user_socket.emit("RECEIVE_MSG", msg);
+            if (ring_socket != socket) {
+                ring_socket.emit(msg_type, msg.toJSON());
             }
         }
     };

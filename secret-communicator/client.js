@@ -2,32 +2,41 @@
  * Created by Hila on 26/12/2015.
  */
 
-module.exports =  function(socket) {
+module.exports =  function() {
 
-    this.client_socket = socket;
+    this.io = require('socket.io')();
+    this.client_socket = '';
 
     /***
-     * First connection to the server, sends to the server the facebook_id and public_key of the user.
-     * @param facebook_id
-     * @param public_key
+     * First connection to the server for joining a ring, sends to the server the relevant user details.
+     * @param social_id     the social id of the user
+     * @param social_type   the social type (facebook/twitter/google+)
+     * @param public_key    the public key of the user
+     * @param ring          the ring the user wants to join
+     * @param token         the token of the user
      */
-    function connectServer(facebook_id, public_key){
+    function joinRing(social_id, social_type, public_key, ring, token){
 
-        var msg = {
-            facebook_id: facebook_id,
-            public_key: public_key
-        }
+        var query = {query:"social_id=$('#social_id')&" +
+        "social_type=$('#social_type')&" +
+        "public_key=$('#public_key')&" +
+        "ring=$('#ring')&" +
+        "token=$('#token')"};
 
-        this.client_socket.emit("CONNECT", msg.toJSON());
+        this.io.connect('/joinRing', query);
+    };
+
+    function startChat(ring)
+    {
+        this.client_socket = this.io.connect('/chat',{query:"ring=$('#ring'))"});
     };
 
     /***
      * Asks from the server the public key list of the current group on secret.
-     * @param facebook_id
      */
-    function getPublicKeysFromServer(facebook_id){
+    function getPublicKeysFromServer(){
 
-        this.client_socket.emit("PUBLIC_KEYS", facebook_id);
+        this.client_socket.emit("PUBLIC_KEYS");
 
         this.client_socket.on("PUBLIC_KEYS", function(public_keys_array){
             return public_keys_array;
@@ -35,15 +44,27 @@ module.exports =  function(socket) {
     }
 
     /***
-     *  Send a message to the group
-     * @param public_keys
-     * @param msg
-     * @param sign
+     * Asks from the server the friends list of the ring group on secret.
+     *
+     * returns array of json object(users) of the form: [{social_id:"",social_type:""},...]
      */
-    function sendMessage(public_keys, msg, sign){
+    function getUsersFromServer(){
 
-        msg_obj = {
-            public_keys: public_keys,
+        this.client_socket.emit("GET_USERS");
+
+        this.client_socket.on("GET_USERS", function(users){
+            return users;
+        });
+    }
+
+    /***
+     *  Send a message to the group
+     * @param msg   the message
+     * @param sign  the user sign
+     */
+    function sendMessage(msg, sign){
+
+        var msg_obj = {
             msg: msg,
             sign: sign
         }
@@ -52,22 +73,27 @@ module.exports =  function(socket) {
 
     /***
      * Receive a message from the group
-     * @returns JSON object: {public_keys, msg, sign}
+     * @returns object {type,msg} (type might be RECEIVE_MSG or NEW_USER)
      */
     function receiveMessage(){
 
         this.client_socket.on("RECEIVE_MSG", function(msg){
-           return JSON.parse(msg);
+           return {type:"RECEIVE_MSG", msg:JSON.parse(msg)};
         });
 
+        this.client_socket.on("NEW_USER", function(msg){
+            return {type:"NEW_USER", msg:JSON.parse(msg)};
+        });
     };
 
     /***
      *  Exports the functions for the client use - connecting the server, receiving public keys of the group, send and receive a message.
      */
     return {
-        connectServer:connectServer,
+        joinRing:joinRing,
+        startChat:startChat,
         getPublicKeysFromServer:getPublicKeysFromServer,
+        getUsersFromServer:getUsersFromServer,
         sendMessage:sendMessage,
         receiveMessage:receiveMessage
     };
