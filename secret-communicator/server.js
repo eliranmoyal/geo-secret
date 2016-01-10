@@ -14,7 +14,7 @@ module.exports =  function(){
     var app = express();
     var http = require('http').Server(app);
     var io = require('socket.io')(http);
-    var myDB = require('server_db');
+    var myDB = require('./server_db.js');
 
     myDB.init();
 
@@ -28,12 +28,16 @@ module.exports =  function(){
         res.sendFile(__dirname + '/index.html');
     });
 
+
     app.get('/privacy', function(req, res){
         res.sendFile(__dirname + '/privacy_policy.html');
     });
 
     // todo: decide whether we want those pages or not.
-    /*app.get('/joinRing', function(req,res){
+
+    /*
+    FOR THIS WE DO WANT . not with get.. just a post to join ring.
+    app.get('/joinRing', function(req,res){
         res.sendFile(__dirname + '/join_ring.html');
     });
 

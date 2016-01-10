@@ -3,21 +3,37 @@
  */
 
 
-module.exports =  function() {
+module.exports =  (function() {
 
-    var sql = require('js/sql.js');
-    var db = sql.Database("users_db.sqlite");
+    var sqlite3 = require('sqlite3').verbose();
+    var db = new sqlite3.Database('users_db.sqlite');
+ 
 
     function init(){
         try{
-            db.run("CREATE TABLE users_info (social_id , social_type, public_key, ring);");
+            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT, ring TEXT);");
         }catch (e){
             // The table already exists
         }
     }
 
     function addNewUser(social_id, social_type, public_key, ring){
-        db.run("INSERT INTO users_info VALUES ($('#social_id'),$('#social_type'),$('#public_key'),$('#ring'));");
+        var params = {
+            $social_id:social_id,
+            $social_type:social_type,
+            $public_key:public_key,
+            $ring:ring
+        }
+        stmt = db.prepare("INSERT INTO users_info(social_id, social_type, public_key, ring) VALUES ($social_id,$social_type,$public_key,$ring);");
+
+        stmt.run(placeholders, function(err) {
+             if(err) {
+                console.log(err);
+                //callback(false);
+            } else {
+                console.log(this);
+            }
+        });
     }
 
     function getPublicKeysByRing(ring){
@@ -38,4 +54,4 @@ module.exports =  function() {
         getPublicKeysByRing:getPublicKeysByRing,
         getUsersSocialInfoByRing:getUsersSocialInfoByRing
     };
-}
+})();
