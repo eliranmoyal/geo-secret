@@ -35,12 +35,24 @@ module.exports =  function(){
 
     // todo: decide whether we want those pages or not.
 
-    /*
-    FOR THIS WE DO WANT . not with get.. just a post to join ring.
-    app.get('/joinRing', function(req,res){
-        res.sendFile(__dirname + '/join_ring.html');
+    var bodyParser = require('body-parser');
+    var jsonParser = bodyParser.json();
+    app.use( bodyParser.json() );       // to support JSON-encoded bodies
+    // parse application/x-www-form-urlencoded 
+    app.use(bodyParser.urlencoded({ extended: false }))
+ 
+     app.post('/register', jsonParser ,function(req,res){
+     //   console.log(req);
+        var user = req.body;
+        console.log(user);
+        var result = myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.ring);
+        res.send(result);
     });
 
+
+    /*
+    FOR THIS WE DO WANT . not with get.. just a post to join ring.
+   
     app.get('/chat', function(req,res){
         res.sendFile(__dirname + '/chat.html');
     });*/

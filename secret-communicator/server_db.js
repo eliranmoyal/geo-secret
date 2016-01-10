@@ -10,11 +10,11 @@ module.exports =  (function() {
  
 
     function init(){
-        try{
-            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT, ring TEXT);");
-        }catch (e){
-            // The table already exists
-        }
+            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT, ring TEXT);",
+                function  (res) {
+                    console.log(res);
+                });
+        
     }
 
     function addNewUser(social_id, social_type, public_key, ring){
@@ -26,7 +26,7 @@ module.exports =  (function() {
         }
         stmt = db.prepare("INSERT INTO users_info(social_id, social_type, public_key, ring) VALUES ($social_id,$social_type,$public_key,$ring);");
 
-        stmt.run(placeholders, function(err) {
+        stmt.run(params, function(err) {
              if(err) {
                 console.log(err);
                 //callback(false);

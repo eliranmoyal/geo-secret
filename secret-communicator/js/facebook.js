@@ -47,10 +47,11 @@ function statusChangeCallback(response) {
 
   function openSecret() {
     console.log('Welcome!  Fetching your information.... ');
+    divToAppear = "#ring-container";
     $('#login-container').addClass("animated").addClass("fadeOutUpBig");
     setTimeout(function() {
       $('#login-container').remove();
-      $('#main-container').removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
+      $(divToAppear).removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
     }, 200);
     
     FB.api('/me', function(response) {
