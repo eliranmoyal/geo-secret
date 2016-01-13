@@ -26,9 +26,11 @@ module.exports =  function() {
         this.io.connect('/joinRing', query);
     };
 
-    function startChat(ring)
+    function startChat(ring,onNewMessage,onNewUser)
     {
         this.client_socket = this.io.connect('/chat',{query:"ring=$('#ring'))"});
+        //todo: connect to recieve_messages and call onNewMessage
+        //todo: connect to new_user and call onNewUser
     };
 
     /***
