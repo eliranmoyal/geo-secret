@@ -4,36 +4,40 @@
 
 
 module.exports =  (function() {
-
-    var sqlite3 = require('sqlite3').verbose();
-    var db = new sqlite3.Database('users_db.sqlite');
- 
-
+    var fs = require('fs');
+    var sql = require('./js/sql.js');
+    var dbFileName = 'test3.sqlite';
+    var db;
     function init(){
-            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT, ring TEXT);",
-                function  (res) {
-                    console.log(res);
-                });
-        
+        if (fs.existsSync(dbFileName)) {
+             var filebuffer = fs.readFileSync(dbFileName);
+             db = new sql.Database(filebuffer);
+        }
+        else {
+            db = new sql.Database();
+            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT,encrypted_private_key TEXT, ring TEXT);");
+            var data = db.export();
+            var buffer = new Buffer(data);
+            fs.writeFileSync(dbFileName, buffer);
+        }
+    
     }
 
+    function syncDb () {
+        var data = db.export();
+        var buffer = new Buffer(data);
+        fs.writeFileSync(dbFileName, buffer);
+    }
     function addNewUser(social_id, social_type, public_key, ring){
         var params = {
-            $social_id:social_id,
-            $social_type:social_type,
-            $public_key:public_key,
-            $ring:ring
+            ':social_id':social_id,
+            ':social_type':social_type,
+            ':public_key':public_key,
+            ':ring':ring
         }
-        stmt = db.prepare("INSERT INTO users_info(social_id, social_type, public_key, ring) VALUES ($social_id,$social_type,$public_key,$ring);");
-
-        stmt.run(params, function(err) {
-             if(err) {
-                console.log(err);
-                //callback(false);
-            } else {
-                console.log(this);
-            }
-        });
+         db.run("INSERT INTO users_info(social_id, social_type, public_key, ring) VALUES (:social_id,:social_type,:public_key,:ring);",params);
+        syncDb();
+        
     }
 
     function getPublicKeysByRing(ring){
