@@ -18,6 +18,16 @@ module.exports =  function(){
 
     myDB.init();
 
+    //TODO: remove this, just checking
+/*    console.log("new User: " + JSON.stringify(myDB.addNewUser("id1","social1","public","private","yavne")));
+    myDB.addNewUser("id2","social2","public2","private2","yavne");
+    myDB.addNewUser("id3","social3","public3","private3","rishon");
+    console.log("rings list: " + JSON.stringify(myDB.getRingsList()));
+    console.log("public keys: " + JSON.stringify(myDB.getPublicKeysByRing("yavne")));
+    console.log("users info: " + JSON.stringify(myDB.getUsersSocialInfoByRing("yavne")));
+    console.log("exists user info: " + JSON.stringify(myDB.getUserInfo("id1", "social1","yavne")));
+    console.log("not exists user info: " + JSON.stringify(myDB.getUserInfo("id", "social","yavne")));*/
+
     app.set('port', (process.env.PORT || 3000));
     app.use("/css",express.static(__dirname +"/css"));
     app.use("/js",express.static(__dirname +"/js"));
@@ -33,31 +43,68 @@ module.exports =  function(){
         res.sendFile(__dirname + '/privacy_policy.html');
     });
 
-    // todo: decide whether we want those pages or not.
-
     var bodyParser = require('body-parser');
     var jsonParser = bodyParser.json();
     app.use( bodyParser.json() );       // to support JSON-encoded bodies
     // parse application/x-www-form-urlencoded 
     app.use(bodyParser.urlencoded({ extended: false }))
- 
+
+    /**
+     * Register the site.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  public_key: value
+     *  encrypted_private_key: value
+     *  ring: value
+     *  token: value
+     * }
+     */
      app.post('/register', jsonParser ,function(req,res){
-     //   console.log(req);
-        var user = req.body;
-        console.log(user);
-        var result = myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.ring);
+         var user = req.body;
+         console.log(user);
+         res.send(joinRing(user));
+    });
+
+    /***
+     * Returns the list of available rings.
+     */
+    app.post('/chats', jsonParser ,function(req,res){
+        var result = myDB.getRingsList();
+        console.log(result);
         res.send(result);
     });
 
+    /**
+     * Returns the public_key and encrypted_private_key of the user.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  token: value
+     *  ring: ring
+     * }
+     */
+    app.post('/chat_credentials', jsonParser ,function(req,res){
 
-    /*
-    FOR THIS WE DO WANT . not with get.. just a post to join ring.
-   
-    app.get('/chat', function(req,res){
-        res.sendFile(__dirname + '/chat.html');
-    });*/
+        // Validate if registered
+        var user = req.body;
+        var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
+        if (user_info == []){
 
-    var users = [];
+            return {is_registered:false};
+        }
+
+        // Validate the user Token
+        if (!validateUserToken(user.social_id, user.social_type, user.token )){
+            return {is_registered:false}; //todo: maybe return other error
+        }
+
+        // Return the user its public key and encrypted_private_key
+        return {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true};
+    });
+
     var sockets_by_ring = [];
 
     /*******************************Help Methods********************************/
@@ -67,48 +114,6 @@ module.exports =  function(){
     function validateUserToken(social_id,social_type,token){
         // todo: implement
         return true;
-    }
-
-    /***
-     * Finds the public keys of a group by ring and returns them.
-     * @param ring
-     * @returns {Array} - the public keys
-     */
-    function getPublicKeysOfRing(ring){
-
-        // todo: read from db instead
-        //myDB.getPublicKeysByRing(ring);
-        var public_keys = [];
-
-        for (var user in users[ring.toLowerCase()]){
-            public_keys.push(user.public_key);
-        }
-
-        return public_keys;
-    }
-
-    /***
-     * Finds the users social info of a group by ring and returns them.
-     * @param ring
-     * @returns {Array}
-     */
-    function getUsersSocialInfoByRing(ring){
-
-        var ring_users_info = [];
-
-        // todo: read from db instead
-        //myDB.getUsersSocialInfoByRing(ring);
-
-        for (var user in users[ring.toLowerCase()]){
-            var user_info = {
-                social_id: user.social_id,
-                social_type: user.social_type
-            }
-
-            ring_users_info.push(user_info);
-        }
-
-        return ring_users_info;
     }
 
     /***
@@ -141,13 +146,6 @@ module.exports =  function(){
      *  Handles the connection, the user messages and disconnection.
      */
     function newConnection(){
-
-        // handle connection of /joinRing
-        io.of('/joinRing').on('connection', function(socket){
-
-            joinRing(socket.handshake.query);
-        });
-
         // handle connection of /chat
         io.of('/chat').on('connection', function(socket){
 
@@ -159,30 +157,17 @@ module.exports =  function(){
 
     /***
      * Handle a first join to a ring
-     * @param user_params - the params from the url query {social_id,social_type,public_key,ring,token}.
+     * @param user - the params from the url query {social_id,social_type,public_key,ring,token}.
      */
-    function joinRing(user_params){
+    function joinRing(user){
         console.log('a user joined a ring');
 
-        var user = {
-            social_id: user_params.social_id,
-            social_type: user_params.social_type,
-            public_key: user_params.public_key,
-            ring: user_params.ring
-        };
-
-
-        if(users.indexOf(user.ring) == -1){ //First initialization of a ring
-            users[user.ring] = [];
+        if (!validateUserToken(user.token)){
+            return {success: false};
         }
 
-        if (!validateUserToken(user_params.token)){
-            return;
-        }
-
-        // todo: write to db instead
-        //myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.ring);
-        users[user.ring].push(user);
+        myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.encrypted_private_key, user.ring.toLowerCase());
+        console.log(user);
 
         // Publish to every ring member the new user details
 
@@ -193,6 +178,8 @@ module.exports =  function(){
         }
 
         broadcastRingMessage("NEW_USER",user_to_publish, user.ring, socket);
+
+        return {success: true};
 
     };
 
@@ -211,12 +198,14 @@ module.exports =  function(){
         });
 
         socket.on("PUBLIC_KEYS", function(){
-            var public_keys = getPublicKeysOfRing(ring);
+            var public_keys = myDB.getPublicKeysByRing(ring);
+            console.log(public_keys);
             socket.emit("PUBLIC_KEYS", public_keys);
         });
 
         socket.on("GET_USERS", function(){
-           var ring_users = getUsersSocialInfoByRing(ring);
+           var ring_users = myDB.getUsersSocialInfoByRing(ring);
+            console.log(ring_users);
             socket.emit("GET_USERS", ring_users);
         });
 
