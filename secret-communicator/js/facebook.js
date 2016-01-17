@@ -14,7 +14,7 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 
-function statusChangeCallback(response) {
+function statusChangeCallback(response,callback) {
     console.log('statusChangeCallback');
     console.log(response);
     // The response object is returned with a status field that lets the
@@ -23,7 +23,7 @@ function statusChangeCallback(response) {
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
       // Logged into your app and Facebook.
-      openSecret();
+      getBasicInformation(callback);
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
       document.getElementById('status').innerHTML = 'Please log ' +
@@ -39,22 +39,17 @@ function statusChangeCallback(response) {
   // This function is called when someone finishes with the Login
   // Button.  See the onlogin handler attached to it in the sample
   // code below.
-  function checkLoginState() {
+  function checkLoginState(callback) {
     FB.getLoginStatus(function(response) {
-      statusChangeCallback(response);
+      statusChangeCallback(response,callback);
     });
   }
 
-  function openSecret() {
+  function getBasicInformation(callback) {
     console.log('Welcome!  Fetching your information.... ');
-    divToAppear = "#ring-container";
-    $('#login-container').addClass("animated").addClass("fadeOutUpBig");
-    setTimeout(function() {
-      $('#login-container').remove();
-      $(divToAppear).removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
-    }, 200);
-    
+    var access_token = FB.getAuthResponse()['accessToken'];
     FB.api('/me', function(response) {
+      callback(response.id,access_token);
       console.log('Successful login for: ' + response.name);
       var li = $('<li>');
       var img = "http://graph.facebook.com/" + response.id + "/picture?type=square";
@@ -66,13 +61,13 @@ function statusChangeCallback(response) {
         'Thanks for logging in, ' + response.name + '!';*/
     });
   }
-function login () {
+function login (callback) {
   console.log("attempting login");
   FB.login(function(response) {
     console.log("login response");
     console.log(response);
       if (response.authResponse) {
-        checkLoginState();
+        checkLoginState(callback);
       }
     });
 
