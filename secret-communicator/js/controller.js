@@ -1,5 +1,6 @@
 
 var facebookId;
+var chatClient = new SocketChatClient();
 var facebookToken;
 function afterFacebookLogin(id,tokenId){
 	
@@ -25,6 +26,8 @@ function replaceDivs(divToAppear,divToRemove){
 }
 
 function findChats () {
+
+    //todo: for each chat get connected user count
     $.get( "/chats")
           .done(function( result ) {
             var rings = result.rings;
@@ -42,11 +45,26 @@ function findChats () {
 }
 
 function joinRing(ringName) {
-    console.log("clicked on ring :" + ringName);
+    console.log("clicked on ring: " + ringName);
     replaceDivs("#chat-container","#ring-container");
+    if(!chatClient.isInitialized()){
+        chatClient.init();
+    }
+    chatClient.startChat(ringName,onNewMessage,onNewUser);
+
+    var users = chatClient.getUsersFromServer();
+    console.log("users:");
+    console.log(users);
     //todo: find ids of group - add them to list
-    //call startChat
     //init encryption stuff
+}
+
+function onNewMessage(data) {
+    
+}
+
+function onNewUser (argument) {
+    // body...
 }
 
 function getKey () {
