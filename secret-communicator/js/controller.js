@@ -12,8 +12,30 @@ function afterFacebookLogin(id,tokenId){
     setTimeout(function() {
       $('#login-container').remove();
       $(divToAppear).removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
+      findChats();
     }, 200);
     
+}
+
+function findChats () {
+    $.get( "/chats")
+          .done(function( result ) {
+            var rings = result.rings;
+            for (var i = rings.length - 1; i >= 0; i--) {
+                ring = rings[i];
+                 var li = $('<li>');
+                 var a = $('<a>');
+                 a.addClass("chat_name");
+                 a.attr("onClick","joinRing('" + ring +"')");
+                 a.append(ring);
+                 li.append(a);
+                $('#chats_list').append(li);
+            };
+          });
+}
+
+function joinRing(ringName) {
+    console.log("clicked on ring :" + ringName)
 }
 
 function getKey () {
