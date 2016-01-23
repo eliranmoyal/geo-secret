@@ -221,13 +221,7 @@ module.exports =  function(){
      */
     function broadcastRingMessage(msg_type, msg, ring){
 
-        io.to(ring).emit(msg_type, msg.toJSON());
-        /*for (var ring_socket in sockets_by_ring[ring]) {
-
-            if (ring_socket != socket) {
-                ring_socket.emit(msg_type, msg.toJSON());
-            }
-        }*/
+        io.to(ring).emit(msg_type, msg);
     };
 
     /***

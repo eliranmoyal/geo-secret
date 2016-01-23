@@ -59,7 +59,7 @@ module.exports =  function() {
             msg: msg,
             sign: sign
         }
-        this.client_socket.emit("SEND_MSG", msg_obj.toJSON());
+        this.client_socket.emit("SEND_MSG",JSON.stringify(msg_obj));
     };
 
     /***

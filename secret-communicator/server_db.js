@@ -36,7 +36,7 @@ module.exports =  (function() {
             ':public_key':public_key,
             ':encrypted_private_key':encrypted_private_key,
             ':ring':ring
-        }
+        };
 
         console.log("new user to db");
         var result = db.run("INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring) VALUES (:social_id,:social_type,:public_key,:encrypted_private_key,:ring);",params);
