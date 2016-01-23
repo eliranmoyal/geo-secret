@@ -2,19 +2,26 @@
 var facebookId;
 var facebookToken;
 function afterFacebookLogin(id,tokenId){
-	divToAppear = "#ring-container";
+	
 	console.log("on controller afterFacebookLogin");
 	console.log ("id:" + id);
 	facebookId  = id;
 	facebookToken = tokenId;
 	console.log("tokenId:" + tokenId);
-    $('#login-container').addClass("animated").addClass("fadeOutUpBig");
+    replaceDivs("#ring-container",'#login-container');
     setTimeout(function() {
-      $('#login-container').remove();
-      $(divToAppear).removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
       findChats();
     }, 200);
     
+}
+
+function replaceDivs(divToAppear,divToRemove){
+    $(divToRemove).addClass("animated").addClass("fadeOutUpBig");
+    setTimeout(function() {
+      $(divToRemove).remove();
+      $(divToAppear).removeClass("hidden").addClass("animated").addClass("fadeInDownBig");
+    }, 200);
+
 }
 
 function findChats () {
@@ -35,7 +42,11 @@ function findChats () {
 }
 
 function joinRing(ringName) {
-    console.log("clicked on ring :" + ringName)
+    console.log("clicked on ring :" + ringName);
+    replaceDivs("#chat-container","#ring-container");
+    //todo: find ids of group - add them to list
+    //call startChat
+    //init encryption stuff
 }
 
 function getKey () {

@@ -241,8 +241,8 @@ p {
 }
 
 #chats_list>li >a:hover {
-background-color: #D8D8EA;
-cursor: pointer; cursor: hand; 
+  background-color: #D8D8EA;
+  cursor: pointer; cursor: hand; 
 }
 
 
