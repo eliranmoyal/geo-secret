@@ -70,7 +70,7 @@ module.exports =  function(){
     /***
      * Returns the list of available rings.
      */
-    app.post('/chats', jsonParser ,function(req,res){
+    app.get('/chats', jsonParser ,function(req,res){
         var result = myDB.getRingsList();
         console.log(result);
         res.send(result);
@@ -123,6 +123,7 @@ module.exports =  function(){
      */
     function addUserSocketByRing(ring, user_socket){
 
+        socket.join(ring.toLowerCase());
         sockets_by_ring[ring.toLowerCase()].push(user_socket);
     }
 
@@ -175,9 +176,9 @@ module.exports =  function(){
             social_id: user.social_id,
             social_type: user.social_type,
             public_key: user.public_key
-        }
+        };
 
-        broadcastRingMessage("NEW_USER",user_to_publish, user.ring, socket);
+        broadcastRingMessage("NEW_USER",user_to_publish, user.ring);
 
         return {success: true};
 
@@ -218,14 +219,15 @@ module.exports =  function(){
      * @param ring
      * @param socket - the current user socket (to make sure we don't send him the message too.
      */
-    function broadcastRingMessage(msg_type, msg, ring, socket){
+    function broadcastRingMessage(msg_type, msg, ring){
 
-        for (var ring_socket in sockets_by_ring[ring]) {
+        io.to(ring).emit(msg_type, msg.toJSON());
+        /*for (var ring_socket in sockets_by_ring[ring]) {
 
             if (ring_socket != socket) {
                 ring_socket.emit(msg_type, msg.toJSON());
             }
-        }
+        }*/
     };
 
     /***

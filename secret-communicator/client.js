@@ -4,7 +4,7 @@
 
 module.exports =  function() {
 
-    this.io = require('socket.io')();
+    this.io = io();
     this.client_socket = '';
 
     function startChat(ring,onNewMessage,onNewUser)
