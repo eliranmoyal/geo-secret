@@ -19,9 +19,8 @@ module.exports =  function(){
     myDB.init();
 
     //TODO: remove this, just checking
-/*    console.log("new User: " + JSON.stringify(myDB.addNewUser("id1","social1","public","private","yavne")));
-    myDB.addNewUser("id2","social2","public2","private2","yavne");
-    myDB.addNewUser("id3","social3","public3","private3","rishon");
+   /*console.log("new User: " + JSON.stringify(myDB.addNewUser("id4","social4","public4","private4","tel-aviv")));
+    myDB.addNewUser("id5","social5","public5","private5","jerusalem");
     console.log("rings list: " + JSON.stringify(myDB.getRingsList()));
     console.log("public keys: " + JSON.stringify(myDB.getPublicKeysByRing("yavne")));
     console.log("users info: " + JSON.stringify(myDB.getUsersSocialInfoByRing("yavne")));
@@ -91,7 +90,7 @@ module.exports =  function(){
         // Validate if registered
         var user = req.body;
         var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
-        if (user_info == []){
+        if (user_info == {}){
 
             return {is_registered:false};
         }
@@ -105,7 +104,35 @@ module.exports =  function(){
         return {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true};
     });
 
-    var sockets_by_ring = [];
+    /**
+     * Returns the rings that the user is registered to.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  token: value
+     * }
+     */
+    app.post('/my_rings', jsonParser ,function(req,res){
+
+        // Validate if registered
+        var user = req.body;
+        var rings_info = myDB.getUserRings(user.social_id, user.social_type);
+        if (rings_info == []){
+
+            return {is_registered:false};
+        }
+
+        // Validate the user Token
+        if (!validateUserToken(user.social_id, user.social_type, user.token )){
+            return {is_registered:false}; //todo: maybe return other error
+        }
+
+        // Return the user its public key and encrypted_private_key
+        return {rings:rings_info, is_registered:true};
+    });
+
+    this.sockets_by_ring = {};
 
     /*******************************Help Methods********************************/
 
@@ -123,8 +150,14 @@ module.exports =  function(){
      */
     function addUserSocketByRing(ring, user_socket){
 
-        socket.join(ring.toLowerCase());
-        sockets_by_ring[ring.toLowerCase()].push(user_socket);
+        console.log("add user socket by ring");
+        user_socket.join(ring.toLowerCase());
+
+        if (this.sockets_by_ring[ring.toLowerCase()] == undefined ){
+            this.sockets_by_ring[ring.toLowerCase()] = [];
+        }
+
+        this.sockets_by_ring[ring.toLowerCase()].push(user_socket);
     }
 
     /******************************Main running method********************************/
@@ -148,11 +181,15 @@ module.exports =  function(){
      */
     function newConnection(){
         // handle connection of /chat
-        io.of('/chat').on('connection', function(socket){
+        io.on('connection', function(socket){
 
-            // Add the user socket to the users list by the token
-            addUserSocketByRing(socket.handshake.query.ring, socket);
-            handleUserMessage(socket, socket.handshake.query.ring);
+            socket.on("CHAT", function(msg){
+                console.log("inside chat");
+                console.log(msg.ring);
+                // Add the user socket to the users list by the token
+                addUserSocketByRing(msg.ring, socket);
+                handleUserMessage(socket, msg.ring);
+            });
         })
     };
 
@@ -193,6 +230,8 @@ module.exports =  function(){
      */
     function handleUserMessage(socket, ring){
 
+        console.log("Handle user requests");
+
         socket.on("SEND_MSG", function(msg){
             console.log('message: ' + msg);
             broadcastRingMessage("RECEIVE_MSG", msg, ring, socket);
@@ -221,7 +260,7 @@ module.exports =  function(){
      */
     function broadcastRingMessage(msg_type, msg, ring){
 
-        io.to(ring).emit(msg_type, msg);
+        io.to(ring).emit(msg_type, msg); //todo: validate it is working
     };
 
     /***

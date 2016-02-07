@@ -3,21 +3,20 @@
  */
 
 function SocketChatClient() {
-    this.io = undefined;
-    this.client_socket = '';
+    this.client_socket = undefined;
 }
 
 
 SocketChatClient.prototype.init = function() {
-    this.io = io();
+    this.client_socket = io();
 }
 
 SocketChatClient.prototype.isInitialized = function () {
-    return this.io != undefined;
+    return this.client_socket != undefined;
 }
 
 SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser){
-    this.client_socket = this.io.connect('/chat',{query:"ring=('#ring'))"});
+    this.client_socket.emit("CHAT", {ring: ring});
 
     // connect to receive_messages and call onNewMessage
     this.client_socket.on("RECEIVE_MSG", function(msg){

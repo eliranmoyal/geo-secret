@@ -100,6 +100,22 @@ module.exports =  (function() {
         return JSON.parse(user_info_json);
     }
 
+    function getUserRings(social_id, social_type){
+
+        var content = db.exec('SELECT ring FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '";');
+
+        if (content == ''){
+            return [];
+        }
+
+        var rings = [];
+
+        for( var i = 0; i< content[0].values.length; i++){
+            rings.push(content[0].values[i][0]);
+        }
+        return rings;
+    }
+
     function getUsersSocialInfoByRing(ring){
 
         var content = db.exec('SELECT social_id, social_type FROM users_info WHERE ring = "' + ring+ '";');
@@ -127,6 +143,7 @@ module.exports =  (function() {
         addNewUser:addNewUser,
         getRingsList:getRingsList,
         getUserInfo:getUserInfo,
+        getUserRings:getUserRings,
         getPublicKeysByRing:getPublicKeysByRing,
         getUsersSocialInfoByRing:getUsersSocialInfoByRing
     };
