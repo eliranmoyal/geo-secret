@@ -45,6 +45,12 @@ function statusChangeCallback(response,callback) {
     });
   }
 
+ function getFacebookDataForId (id) {
+  return {
+    "img":  "http://graph.facebook.com/" + response.id + "/picture?type=square",
+    "name": "mishu"//todo: implement this??
+  } 
+ }
   function getBasicInformation(callback) {
     console.log('Welcome!  Fetching your information.... ');
     var access_token = FB.getAuthResponse()['accessToken'];

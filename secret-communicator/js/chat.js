@@ -1,3 +1,31 @@
+/*
+todo:
+Message is a class
+It also should recive the validation status for messages from other people.
+ so he can add class to the message (add some kind of css for it later )
+
+ getMessageText() = function that takes the message_input
+
+displayMessage(text,mine,encryption) = function that creates Message
+and display it
+encryption does not matter for mine =  true
+
+on controller:
+on enter / click
+    getMessageText
+    displayMessage(text,true,undefined)
+    clearMessageText
+    encrypt and emit
+
+onNewMessage
+    try to validate and return the validation status
+    maby call server /know  all people . check users/usersIKnow 
+    and add it to the validationStatus??
+    displayMessage(text,false,validationStatus)
+
+    
+*/
+
 (function () {
     var Message;
     Message = function (arg) {

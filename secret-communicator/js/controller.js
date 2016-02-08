@@ -2,6 +2,9 @@
 var facebookId;
 var chatClient = new SocketChatClient();
 var facebookToken;
+var cryptoApi = new CryptoApi();
+var currentKeys;
+
 function afterFacebookLogin(id,tokenId){
 	
 	console.log("on controller afterFacebookLogin");
@@ -60,18 +63,21 @@ function joinRing(ringName) {
 }
 
 function onNewMessage(data) {
-    
+
 }
 
 function onNewUser (argument) {
     // body...
 }
 
-function getKey () {
-	return {
-		"public":"hey",
-		"encrypted_private":"bye"
-	};
+function generatePublicKeyAndEncryptedPrivateKey () {
+    this.currentKeys = cryptoApi.generateKeys();
+    //todo: call crypto api to encrypt key + add password in this stage.   
+    encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
+    return {
+        "publicKey": currentKeys["publicKey"],
+        "encrypedPrivateKey" : encrypedKey
+    };
 }
 
 $(document).ready(function(){
@@ -82,14 +88,24 @@ $(document).ready(function(){
          data["token"] = facebookToken;
          data["social_id"] = facebookId;
          data["social_type"] = "facebook";
-         key = getKey();
-         data["public_key"] = key.public;
-         data["encrypted_private_key"] = key.encrypted_private;
-         data["ring"] = $("#ring").val();
+         key = generatePublicKeyAndEncryptedPrivateKey();
+         data["public_key"] = key["publicKey"];
+         data["encrypted_private_key"] = key["encrypedPrivateKey"];
+         requestedRing =$("#ring").val(); 
+         data["ring"] = requestedRing;
+         console.log(data);
          
         $.post( "/register", data)
 		  .done(function( result ) {
-		    console.log( "Data Loaded: " + result );
+		    console.log("register result:");
+            console.log(result);
+            if(result.success == true){
+               joinRing(requestedRing.toLowerCase()); 
+            }
+            else {
+                alert("could not register to ring " + JSON.stringify(result));
+            }
+
 		  });
      });
 });
