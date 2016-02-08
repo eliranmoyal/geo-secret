@@ -45,11 +45,17 @@ function statusChangeCallback(response,callback) {
     });
   }
 
- function getFacebookDataForId (id) {
-  return {
-    "img":  "http://graph.facebook.com/" + response.id + "/picture?type=square",
-    "name": "mishu"//todo: implement this??
-  } 
+ function addFacebookUserToConnectedList (id) {
+  FB.api('/'+id, function(response) {
+     console.log('Successful search for: ' + response.name);
+      var li = $('<li>');
+      var img = "http://graph.facebook.com/" + response.id + "/picture?type=square";
+      li.append($('<img>').attr("src",img));
+      li.append(response.name);
+      $('#facebook_connected_list').append(li);
+      console.log(response);
+  }
+  );
  }
   function getBasicInformation(callback) {
     console.log('Welcome!  Fetching your information.... ');
@@ -61,7 +67,7 @@ function statusChangeCallback(response,callback) {
       var img = "http://graph.facebook.com/" + response.id + "/picture?type=square";
       li.append($('<img>').attr("src",img));
       li.append(response.name);
-      $('#facebook_connected_list').append(li);
+      //$('#facebook_connected_list').append(li);
       console.log(response);
       /*document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';*/

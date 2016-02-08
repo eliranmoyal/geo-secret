@@ -120,6 +120,7 @@ module.exports =  (function() {
 
         var content = db.exec('SELECT social_id, social_type FROM users_info WHERE ring = "' + ring+ '";');
 
+
         if (content == ''){
             return {"users_info": []};
         }

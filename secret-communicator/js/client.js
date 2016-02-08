@@ -15,7 +15,7 @@ SocketChatClient.prototype.isInitialized = function () {
     return this.client_socket != undefined;
 }
 
-SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser){
+SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser,onAllUsers){
     this.client_socket.emit("CHAT", {ring: ring});
 
     // connect to receive_messages and call onNewMessage
@@ -26,6 +26,10 @@ SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser){
     // connect to new_user and call onNewUser
     this.client_socket.on("NEW_USER", function(msg){
         onNewUser(JSON.parse(msg));
+    });
+
+    this.client_socket.on("GET_USERS", function(users){
+        onAllUsers(users);
     });
 };
 
@@ -49,10 +53,6 @@ SocketChatClient.prototype.getPublicKeysFromServer = function(){
 SocketChatClient.prototype.getUsersFromServer = function(){
 
     this.client_socket.emit("GET_USERS");
-
-    this.client_socket.on("GET_USERS", function(users){
-        return users;
-    });
 }
 
 /***
