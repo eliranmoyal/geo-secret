@@ -17,6 +17,12 @@ function afterFacebookLogin(id,tokenId){
 	facebookId  = id;
 	facebookToken = tokenId;
 	console.log("tokenId:" + tokenId);
+    $.post('/my_rings', data)
+    .done(function( result ) {
+        console.log("my rings:");
+        console.log(result);
+        // todo: mark the rings that I am already registered too.
+    });
     replaceDivs("#ring-container",'#login-container');
     setTimeout(function() {
       findChats();
