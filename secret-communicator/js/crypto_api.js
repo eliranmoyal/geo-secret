@@ -10,6 +10,7 @@ function CryptoApi() {
 */
 
 CryptoApi.prototype.generateKeys = function () {
+    var rsaKeySize = 512;
     var iv = Math.random().toString();
 
     var key = cryptico.generateRSAKey(iv, rsaKeySize);
