@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <!-- RSA & AES includes -->
+    <script type="text/javascript" src="libs/rsa/cryptico-master/hash.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/jsbn.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/random.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/aes.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/rsa.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/api.js"></script>
+    <script type="text/javascript" src="libs/rsa/cryptico-master/cryptico.js"></script>
+
+    <script type="text/javascript" src="big_int_utils.js"></script>
+    <script type="text/javascript" src="sha1.js"></script>
+    <script type="text/javascript" src="xor_enc.js"></script>
+    <script type="text/javascript" src="rsa.js"></script>
+    <script type="text/javascript" src="trap_door.js"></script>
+    <script type="text/javascript" src="ring_signature.js"></script>
+
+</head>
+<body>
+
+<h1>
+    Testing Ring Signature
+</h1>
+
+<script type="text/javascript">
+    function print(string)
+    {
+        document.write(string + "<br/>");
+    }
+
+    function generateRsa()
+    {
+        var iv = Math.random().toString();
+
+        var key = cryptico.generateRSAKey(iv, rsaKeySize);
+        var rsa = new NumericalRSA(key);
+
+        return rsa;
+    }
+
+
+    var rsaKeySize = 512;
+    var numOfPeople = 5;
+    var myIndex = 2;
+
+    var myRsa = generateRsa();
+    var othersRsa = [];
+
+    var myTrapDoor;
+    var othersTrapDoors = [];
+
+    // Set all rsa keys
+    for (var i = 0; i < numOfPeople - 1; i++) {
+        othersRsa.push(generateRsa());
+    }
+
+    // Set all trap door permutations
+    myTrapDoor = new TrapDoorPermutation(myRsa);
+    for (var i = 0; i < numOfPeople - 1; i++) {
+        othersTrapDoors.push(new TrapDoorPermutation(othersRsa[i]));
+    }
+
+    var message = "Hello";
+
+    var signature = sign(message, myTrapDoor, myIndex, othersTrapDoors);
+    var signatureJson = signature.toJson();
+
+    print(validateSign(ringSignatureFromJson(signatureJson)) ? "Sign is OK!!!!!" : "Fuck you, try again");
+
+</script>
+
+</body>
+</html>
