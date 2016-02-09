@@ -22,9 +22,9 @@ module.exports =  (function() {
         var idx = 0;
 
         // Get the last index of the ring
-        var content = client.query("SELECT max(index_on_ring) FROM users_info WHERE ring == '" + ring + "';");
+        var content = client.query("SELECT max(index_on_ring) as idx FROM users_info WHERE ring == '" + ring + "';");
         if (content != '' && content.length != 0){
-            idx = content[0]["index_on_ring"] + 1;
+            idx = content[0]["idx"] + 1;
         }
         console.log(ring + " next idx: " + idx);
         return idx;
