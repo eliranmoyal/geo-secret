@@ -284,6 +284,10 @@ module.exports =  function(){
      */
     function broadcastRingMessage(msg_type, msg, ring, socket){
 
+        if (this.sockets_by_ring[ring.toLowerCase()] == undefined){
+            return;
+        }
+
         for (var socket_index = 0; socket_index< this.sockets_by_ring[ring.toLowerCase()].length; socket_index++){
 
             if (socket != this.sockets_by_ring[ring.toLowerCase()][socket_index]){
