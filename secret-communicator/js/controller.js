@@ -55,6 +55,8 @@ function joinRing(ringName) {
     console.log("clicked on ring: " + ringName);
     replaceDivs("#chat-container","#ring-container");
     $("#chatTitle").html("Secrets - " + ringName);
+    //todo: call getUserInfo.....
+    myIndex = 0;
     if(!chatClient.isInitialized()){
         chatClient.init();
     }
@@ -90,8 +92,8 @@ function onPublicKeys (publicKeys) {
     trapDoors = []
     for(i=0;i<publicKeys.length;i++){
         trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
-        //todo: needToCheck if not myTrapDoor and than push
-        trapDoors.push(trapDoor);
+        if(i != myIndex)
+            trapDoors.push(trapDoor);
     }
     otherTrapDoors = trapDoors;
 
