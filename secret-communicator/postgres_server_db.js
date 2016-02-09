@@ -33,13 +33,14 @@ module.exports =  (function() {
         console.log("getRingsList");
         var content = client.query("SELECT DISTINCT(ring) FROM users_info");
         console.log(content);
-        if (content == ''){
+        if (content == '' || content.length == 0){
             return {"rings": []};
         }
 
+
         var rings_list = [];
-        for( var i = 0; i< content[0].values.length; i++){
-            rings_list.push(content[0].values[i][0]);
+        for( var i = 0; i< content.length; i++){
+            rings_list.push(content[i]["ring"]);
         }
 
         return {"rings": rings_list};
@@ -49,14 +50,14 @@ module.exports =  (function() {
         console.log("getPublicKeysByRing");
         var content = client.query('SELECT public_key FROM users_info WHERE ring == "'+ ring + '";');
         console.log(content);   
-        if (content == ''){
+        if (content == '' || content.length == 0){
             return {"public_keys": []};
         }
 
         var keys_list = [];
 
-        for( var i = 0; i< content[0].values.length; i++){
-            keys_list.push(content[0].values[i][0]);
+        for( var i = 0; i< content.length; i++){
+            keys_list.push(content[i]["public_key"]);
         }
 
         return {"public_keys": keys_list};
@@ -66,7 +67,7 @@ module.exports =  (function() {
         console.log("getUserInfo");
         var content = client.query('SELECT * FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '" and ring = "' + ring+ '";');
         console.log(content);   
-        if (content == ''){
+        if (content == '' || content.length == 0){
             return {};
         }
 
@@ -89,14 +90,14 @@ module.exports =  (function() {
         console.log("getUserRings");
         var content = client.query('SELECT ring FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '";');
         console.log(content);
-        if (content == ''){
+        if (content == '' || content.length == 0){
             return [];
         }
 
         var rings = [];
 
-        for( var i = 0; i< content[0].values.length; i++){
-            rings.push(content[0].values[i][0]);
+        for( var i = 0; i< content.length; i++){
+            rings.push(content[i]["ring"]);
         }
         return rings;
     }
@@ -112,13 +113,9 @@ module.exports =  (function() {
 
         var users_info = [];
 
-        var len = content[0].values.length;
+        var len = content.length;
         for( var i = 0; i< len; i++){
-            var user_info_json = "{ ";
-            user_info_json += '"social_id"' + ':"' + content[0].values[i][0] + '",';
-            user_info_json += '"social_type"' + ':"' + content[0].values[i][1] + '"';
-            user_info_json += " }";
-            users_info[i] = JSON.parse(user_info_json);
+            users_info[i] = content[i];
         }
 
         return {"users_info": users_info};
