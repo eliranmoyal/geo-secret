@@ -13,8 +13,6 @@ module.exports =  (function() {
  
         client.connect(process.env.DATABASE_URL);
         
-        client.begin();
-        client.setIsolationLevelSerializable();
         client.setAutoCommit('on');
     
     }
