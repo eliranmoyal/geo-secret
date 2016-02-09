@@ -16,7 +16,7 @@ module.exports =  (function() {
         }
         else {
             db = new sql.Database();
-            db.run("CREATE TABLE users_info (social_id char(20), social_type char(20), public_key TEXT,encrypted_private_key TEXT, ring TEXT);");
+            db.run("CREATE TABLE users_info (index_on_ring INT, social_id char(20), social_type char(20), public_key TEXT,encrypted_private_key TEXT, ring TEXT);");
             var data = db.export();
             var buffer = new Buffer(data);
             fs.writeFileSync(dbFileName, buffer);
@@ -29,17 +29,36 @@ module.exports =  (function() {
         var buffer = new Buffer(data);
         fs.writeFileSync(dbFileName, buffer);
     }
-    function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring){
+
+    function getNextIndexForRing(ring){
+
+        var idx = 0;
+
+        // Get the last index of the ring
+        var content = db.exec("SELECT max(index_on_ring) FROM users_info WHERE ring == '" + ring + "';");
+        if (content[0].values[0][0] != null){
+            idx = content[0].values[0][0] + 1;
+        }
+
+        console.log(ring + " next idx: " + idx);
+        return idx;
+    }
+
+    function addNewUser(idx, social_id, social_type, public_key, encrypted_private_key, ring){
+
+        //var idx = getNextIndexForRing(ring.toLowerCase());
+
         var params = {
+            ':index_on_ring':idx,
             ':social_id':social_id,
             ':social_type':social_type,
             ':public_key':public_key,
             ':encrypted_private_key':encrypted_private_key,
-            ':ring':ring
+            ':ring':ring.toLowerCase()
         };
 
         console.log("new user to db");
-        var result = db.run("INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring) VALUES (:social_id,:social_type,:public_key,:encrypted_private_key,:ring);",params);
+        var result = db.run("INSERT INTO users_info(index_on_ring, social_id, social_type, public_key, encrypted_private_key, ring) VALUES (:index_on_ring, :social_id,:social_type,:public_key,:encrypted_private_key,:ring);",params);
         syncDb();
 
         return result;
@@ -62,7 +81,7 @@ module.exports =  (function() {
 
     function getPublicKeysByRing(ring){
 
-        var content = db.exec('SELECT public_key FROM users_info WHERE ring == "'+ ring + '";');
+        var content = db.exec('SELECT public_key FROM users_info WHERE ring == "'+ ring + '" ORDER BY index_on_ring;');
 
         if (content == ''){
             return {"public_keys": []};
@@ -146,6 +165,7 @@ module.exports =  (function() {
         getUserInfo:getUserInfo,
         getUserRings:getUserRings,
         getPublicKeysByRing:getPublicKeysByRing,
-        getUsersSocialInfoByRing:getUsersSocialInfoByRing
+        getUsersSocialInfoByRing:getUsersSocialInfoByRing,
+        getNextIndexForRing:getNextIndexForRing
     };
 })();

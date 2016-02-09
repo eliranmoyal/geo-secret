@@ -33,6 +33,12 @@ module.exports =  function(){
     
 
     //TODO: remove this, just checking
+  /*  var idx = myDB.getNextIndexForRing("jerusalem");
+    console.log(idx);
+    myDB.addNewUser(idx, "id5","social5","public5","private5","jerusalem");
+    idx = myDB.getNextIndexForRing("jerusalem");
+    console.log(idx);*/
+
    /*console.log("new User: " + JSON.stringify(myDB.addNewUser("id4","social4","public4","private4","tel-aviv")));
     myDB.addNewUser("id5","social5","public5","private5","jerusalem");
     console.log("rings list: " + JSON.stringify(myDB.getRingsList()));
@@ -115,7 +121,7 @@ module.exports =  function(){
         }
 
         // Return the user its public key and encrypted_private_key
-        res.send( {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
+        res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
     });
 
     /**
@@ -229,7 +235,7 @@ module.exports =  function(){
             public_key: user.public_key
         };
 
-        broadcastRingMessage("NEW_USER",user_to_publish, user.ring);
+        broadcastRingMessage("NEW_USER",user_to_publish, user.ring.toLowerCase(), null);
 
         return {success: true};
 
@@ -272,9 +278,15 @@ module.exports =  function(){
      * @param ring
      * @param socket - the current user socket (to make sure we don't send him the message too.
      */
-    function broadcastRingMessage(msg_type, msg, ring){
+    function broadcastRingMessage(msg_type, msg, ring, socket){
 
-        io.to(ring).emit(msg_type, msg); //todo: validate it is working
+        for (var ring_member_socket in this.sockets_by_ring[ring.toLowerCase()]){
+
+            if (socket != ring_member_socket){
+                ring_member_socket.emit(msg_type, msg);
+            }
+        }
+       // io.to(ring).emit(msg_type, msg); //todo: validate it is working
     };
 
     /***

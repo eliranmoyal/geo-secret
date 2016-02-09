@@ -17,8 +17,22 @@ module.exports =  (function() {
     
     }
 
+    function getNextIndexForRing(ring){
+
+        var idx = 0;
+
+        // Get the last index of the ring
+        var content = client.query("SELECT max(index_on_ring) FROM users_info WHERE ring == '" + ring + "';");
+        if (content != '' && content.length != 0){
+            idx = content[0]["index_on_ring"] + 1;
+        }
+        console.log(ring + " next idx: " + idx);
+        return idx;
+    }
+
     function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring ){
-        var params =  [social_id,social_type,public_key,encrypted_private_key,ring,0];
+        var idx = getNextIndexForRing(ring.toLowerCase());
+        var params =  [social_id,social_type,public_key,encrypted_private_key,ring,idx];
         console.log("new user to db");
         insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index_on_ring) VALUES ($1,$2,$3,$4,$5,$6);";
         var stm = client.prepare(insertQuery);
@@ -47,7 +61,7 @@ module.exports =  (function() {
 
     function getPublicKeysByRing(ring){
         console.log("getPublicKeysByRing");
-        var content = client.query("SELECT public_key FROM users_info WHERE ring == '"+ ring + "';");
+        var content = client.query("SELECT public_key FROM users_info WHERE ring == '"+ ring + "' ORDER BY index_on_ring;");
         console.log(content);   
         if (content == '' || content.length == 0){
             return {"public_keys": []};
