@@ -17,6 +17,11 @@ function afterFacebookLogin(id,tokenId){
 	facebookId  = id;
 	facebookToken = tokenId;
 	console.log("tokenId:" + tokenId);
+
+    data = {}
+    data["social_id"] = facebookId;
+    data["social_type"] = "facebook";
+
     $.post('/my_rings', data)
     .done(function( result ) {
         console.log("my rings:");
