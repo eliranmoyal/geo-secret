@@ -44,6 +44,27 @@ CryptoApi.prototype.signMessage =  function(message,myKey,otherKeys,myIndex){
     return signature.toJson();
 }
 
+function xorStringPermutation(password, privateKeyStr) {
+    password = password.toString(2);
+    privateKeyStr = privateKeyStr.toString(2);
+
+    var finalPassword = password;
+
+    while (finalPassword.length < privateKeyStr.length) {
+        finalPassword += password;
+    }
+
+    finalPassword = finalPassword.substr(0, privateKeyStr.length);
+
+    var encryptedKey = "";
+
+    for (var i = 0; i < privateKeyStr.length; i++) {
+        encryptedKey += String.fromCharCode(privateKeyStr.charCodeAt(i) ^ finalPassword.charCodeAt(i));
+    }
+
+    return encryptedKey;
+}
+
 /**
 encrypt and decrypt private keys.. need to think about it a little more 
 how do i know if my private key decryption is correct? maby add a "correct" at the end of the key for encryption
@@ -53,8 +74,8 @@ password ->(need salt?) pbkdf2 -> some kind of symmetric encryption for privateK
 */
 
 CryptoApi.prototype.encryptKey = function(password,privateKey){
-    //todo: return encrypted key.
-    return privateKey;
+    privateKeyStr = JSON.stringify(privateKey);
+    return xorStringPermutation(password, privateKeyStr);
 }
 
 /**
@@ -63,5 +84,5 @@ CryptoApi.prototype.encryptKey = function(password,privateKey){
     or use the public key to sign some stuff and try to decrypt it with the privateKey
 */
 CryptoApi.prototype.decryptKey = function(password,encryptedKey){
-    //todo: decrypt key return undefined if not succedded and the key if succeeded
+    return JSON.parse(xorStringPermutation(password, encryptedKey));
 }
