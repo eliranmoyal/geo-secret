@@ -106,16 +106,16 @@ module.exports =  function(){
         var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
         if (user_info == {}){
 
-            return {is_registered:false};
+            res.send({is_registered:false});
         }
 
         // Validate the user Token
         if (!validateUserToken(user.social_id, user.social_type, user.token )){
-            return {is_registered:false}; //todo: maybe return other error
+            res.send({is_registered:false}); //todo: maybe return other error
         }
 
         // Return the user its public key and encrypted_private_key
-        return {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true};
+        res.send( {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
     });
 
     /**
