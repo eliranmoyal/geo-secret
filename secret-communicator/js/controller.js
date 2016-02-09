@@ -77,7 +77,7 @@ function joinRing(ringName) {
         myTrapDoorKey = undefined;
         otherTrapDoors = undefined;
     }
-    updateIndexAndMyKey();
+    updateIndexAndMyKey(ringName);
     console.log("clicked on ring: " + ringName);
     replaceDivs("#chat-container","#ring-container");
     $("#chatTitle").html("Secrets - " + ringName);
