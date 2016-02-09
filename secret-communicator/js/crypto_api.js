@@ -10,25 +10,59 @@ function CryptoApi() {
 */
 
 CryptoApi.prototype.generateKeys = function () {
-    return {"privateKey": "134" , "publicKey": "1234"}
+    var iv = Math.random().toString();
+
+    var key = cryptico.generateRSAKey(iv, rsaKeySize);
+    var myRsa = new NumericalRSA(key);
+    var myTrapDoor = new TrapDoorPermutation(myRsa);
+
+    return {"privateKey": myTrapDoor.toJson(false) , "publicKey": myTrapDoor.toJson(true)};
 }
 
 
-/*
- * validate the message ..
- todo: alex - put some docs here
-*/
+/**
+ * Validate that the ring signature is correct
+ *
+ * @param signature {{message: string, v: string, trapDoors: TrapDoorPermutation[], randVals: string[], encryptedVals: string[]}}
+ */
 CryptoApi.prototype.validateMessage =  function(signature){
-    //todo: return true or false
-    //todo: think. who validated that the signature contains all the correct members for the ring??
+    return validateSign(ringSignatureFromJson(signature));
 
 };
 
-/*
-todo: alex - put some docs here
-*/
-CryptoApi.prototype.signMessage =  function(message,myKeys,otherKeys,myIndex){
-    //todo: return signature object.
+/**
+ * Sign a message using the ring signature
+ *
+ * @param message       message to sign
+ * @param myKey         my rsa key
+ * @param otherKeys     others rsa keys
+ * @param myIndex       my index with respect to the group
+ * @returns {{message: string, v: string, trapDoors: TrapDoorPermutation[], randVals: string[], encryptedVals: string[]}}
+ */
+CryptoApi.prototype.signMessage =  function(message,myKey,otherKeys,myIndex){
+    var signature = sign(message, myKey, myIndex, otherKeys)
+    return signature.toJson();
+}
+
+function xorStringPermutation(password, privateKeyStr) {
+    password = password.toString(2);
+    privateKeyStr = privateKeyStr.toString(2);
+
+    var finalPassword = password;
+
+    while (finalPassword.length < privateKeyStr.length) {
+        finalPassword += password;
+    }
+
+    finalPassword = finalPassword.substr(0, privateKeyStr.length);
+
+    var encryptedKey = "";
+
+    for (var i = 0; i < privateKeyStr.length; i++) {
+        encryptedKey += String.fromCharCode(privateKeyStr.charCodeAt(i) ^ finalPassword.charCodeAt(i));
+    }
+
+    return encryptedKey;
 }
 
 /**
@@ -40,8 +74,8 @@ password ->(need salt?) pbkdf2 -> some kind of symmetric encryption for privateK
 */
 
 CryptoApi.prototype.encryptKey = function(password,privateKey){
-    //todo: return encrypted key.
-    return privateKey;
+    privateKeyStr = JSON.stringify(privateKey);
+    return xorStringPermutation(password, privateKeyStr);
 }
 
 /**
@@ -50,5 +84,5 @@ CryptoApi.prototype.encryptKey = function(password,privateKey){
     or use the public key to sign some stuff and try to decrypt it with the privateKey
 */
 CryptoApi.prototype.decryptKey = function(password,encryptedKey){
-    //todo: decrypt key return undefined if not succedded and the key if succeeded
+    return JSON.parse(xorStringPermutation(password, encryptedKey));
 }
