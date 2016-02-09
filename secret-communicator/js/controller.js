@@ -8,6 +8,7 @@ var currentKeys;
 var myIndex;
 var myTrapDoorKey;
 var otherTrapDoors;
+var currentRing;
 
 function afterFacebookLogin(id,tokenId){
 	
@@ -51,7 +52,32 @@ function findChats () {
           });
 }
 
+function updateIndexAndMyKey (ringName) {
+    data = {}
+     data["token"] = facebookToken;
+     data["social_id"] = facebookId;
+     data["social_type"] = "facebook";
+     data["ring"] = ringName.toLowerCase();
+    $.post( "/chat_credentials", data)
+          .done(function( result ) {
+            console.log("register result:");
+            console.log(result);
+            myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
+            myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
+
+      });
+    
+}
+
 function joinRing(ringName) {
+    if(currentRing != ringName.toLowerCase()){
+        //joining another ring , and not registered ring.
+        currentRing = ringName.toLowerCase();
+        myIndex = undefined;
+        myTrapDoorKey = undefined;
+        otherTrapDoors = undefined;
+    }
+    updateIndexAndMyKey();
     console.log("clicked on ring: " + ringName);
     replaceDivs("#chat-container","#ring-container");
     $("#chatTitle").html("Secrets - " + ringName);
@@ -177,6 +203,7 @@ $(document).ready(function(){
          data["encrypted_private_key"] = key["encrypedPrivateKey"];
          requestedRing =$("#ring").val(); 
          data["ring"] = requestedRing;
+         currentRing = requestedRing.toLowerCase();
          console.log(data);
          
         $.post( "/register", data)
