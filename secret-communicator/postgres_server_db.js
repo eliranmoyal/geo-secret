@@ -22,7 +22,7 @@ module.exports =  (function() {
     function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring ){
         var params =  [social_id,social_type,public_key,encrypted_private_key,ring,0]
         console.log("new user to db");
-        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index) VALUES ($1,$2,$3,$4,$5);";
+        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index) VALUES ($1,$2,$3,$4,$5.$6);";
         var stm = client.prepare(insertQuery);
         res = stm.execute(params);
         console.log(res);
@@ -97,7 +97,7 @@ module.exports =  (function() {
         var rings = [];
 
         for( var i = 0; i< content.length; i++){
-            rings.push(content[i]["ring"]);
+            rings.push(content[i]["ring"].trim());
         }
         return rings;
     }
