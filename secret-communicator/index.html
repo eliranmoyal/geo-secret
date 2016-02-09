@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>GeoSecret</title>
+  <title>GeoSecret</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/bootstrap-social.css">
   <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
@@ -13,8 +13,12 @@
 <body>
   <script type="text/javascript" src="js/jquery-2.1.4.min.js"> </script>
   <script type="text/javascript" src="js/bootstrap.min.js"> </script>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script type="text/javascript" src="js/client.js"></script>
   <script type="text/javascript" src="js/facebook.js"> </script>
+  <script type="text/javascript" src="js/crypto_api.js"></script>
   <script type="text/javascript" src="js/chat.js"></script>
+  <script type="text/javascript" src="js/controller.js"> </script>
   <div class= "container">
     <div class="row" >
       <div class ="col-md-4 col-md-offset-4" id="login-container">
@@ -32,7 +36,7 @@
             <div class="row">
 
               <div class="col-md-12" >
-                <a onclick="login()" class="btn-lg btn-block btn-social btn-facebook">
+                <a onclick="login(afterFacebookLogin)" class="btn-lg btn-block btn-social btn-facebook">
                   <span class="fa fa-facebook"></span>
                   Sign in with Facebook
                 </a>
@@ -53,11 +57,48 @@
 
         </div>
       </div> <!-- end of login container-->
-      <div id="main-container" class="main-conainer hidden">
+      <div id="ring-container" class="main-conainer hidden">
+
+        <div class="col-md-7 col-md-offset-2" id="register">
+           <div class="top_menu">
+              <div class="title">Register</div>    
+            </div>
+          <div class="ring">
+
+          </div>
+          <form id="registerForm">
+            <div class="form-group">
+              <select class="form-control" name="ring" id="ring">
+                <option>Yavne</option>
+                <option>Rishon</option>
+                <option>Tel-Aviv</option>
+                <option>Hertzelia</option>
+                <option>Kfar-Saba</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+
+        </div>
+         <div class="col-md-2">
+           <div class="top_menu" id="chats">
+            <div class="title">Chats</div>    
+          </div>
+
+          <div id="aviliable_chats">
+           <ul class="nav navbar-left" id="chats_list">
+           </ul>
+         </div>
+        </div>
+
+
+
+      </div><!-- end of chat container-->
+      <div id="chat-container" class="main-conainer hidden">
         <div class="col-md-7 col-md-offset-2">
           <div class="chat_window">
             <div class="top_menu">
-              <div class="title">Secrets</div>    
+              <div class="title" id="chatTitle">Secrets</div>    
             </div>
             <ul class="messages"></ul>
             <div class="bottom_wrapper clearfix">
@@ -74,19 +115,19 @@
           </div>
           <div class="col-md-2">
            <div class="top_menu" id="connected">
-              <div class="title">Connected</div>    
+            <div class="title">Connected</div>    
           </div>
 
-           <div id="facebook_connected">
-             <ul class="nav" id="facebook_connected_list">
-             </ul>
-           </div>
+          <div id="facebook_connected">
+           <ul class="nav" id="facebook_connected_list">
+           </ul>
          </div>
+        </div>
 
-       </div>
-     </div>
+     </div><!-- end of chat container-->
    </div>
+ </div>
 
 
- </body>
- </html>
+</body>
+</html>

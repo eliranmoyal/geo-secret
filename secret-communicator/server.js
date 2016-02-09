@@ -14,6 +14,18 @@ module.exports =  function(){
     var app = express();
     var http = require('http').Server(app);
     var io = require('socket.io')(http);
+    var myDB = require('./server_db.js');
+
+    myDB.init();
+
+    //TODO: remove this, just checking
+   /*console.log("new User: " + JSON.stringify(myDB.addNewUser("id4","social4","public4","private4","tel-aviv")));
+    myDB.addNewUser("id5","social5","public5","private5","jerusalem");
+    console.log("rings list: " + JSON.stringify(myDB.getRingsList()));
+    console.log("public keys: " + JSON.stringify(myDB.getPublicKeysByRing("yavne")));
+    console.log("users info: " + JSON.stringify(myDB.getUsersSocialInfoByRing("yavne")));
+    console.log("exists user info: " + JSON.stringify(myDB.getUserInfo("id1", "social1","yavne")));
+    console.log("not exists user info: " + JSON.stringify(myDB.getUserInfo("id", "social","yavne")));*/
 
     app.set('port', (process.env.PORT || 3000));
     app.use("/css",express.static(__dirname +"/css"));
@@ -25,83 +37,127 @@ module.exports =  function(){
         res.sendFile(__dirname + '/index.html');
     });
 
+
     app.get('/privacy', function(req, res){
         res.sendFile(__dirname + '/privacy_policy.html');
     });
 
-    var users = [];
+    var bodyParser = require('body-parser');
+    var jsonParser = bodyParser.json();
+    app.use( bodyParser.json() );       // to support JSON-encoded bodies
+    // parse application/x-www-form-urlencoded 
+    app.use(bodyParser.urlencoded({ extended: false }))
+
+    /**
+     * Register the site.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  public_key: value
+     *  encrypted_private_key: value
+     *  ring: value
+     *  token: value
+     * }
+     */
+     app.post('/register', jsonParser ,function(req,res){
+         var user = req.body;
+         console.log(user);
+         res.send(joinRing(user));
+    });
+
+    /***
+     * Returns the list of available rings.
+     */
+    app.get('/chats', jsonParser ,function(req,res){
+        var result = myDB.getRingsList();
+        console.log(result);
+        res.send(result);
+    });
+
+    /**
+     * Returns the public_key and encrypted_private_key of the user.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  token: value
+     *  ring: ring
+     * }
+     */
+    app.post('/chat_credentials', jsonParser ,function(req,res){
+
+        // Validate if registered
+        var user = req.body;
+        var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
+        if (user_info == {}){
+
+            return {is_registered:false};
+        }
+
+        // Validate the user Token
+        if (!validateUserToken(user.social_id, user.social_type, user.token )){
+            return {is_registered:false}; //todo: maybe return other error
+        }
+
+        // Return the user its public key and encrypted_private_key
+        return {public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true};
+    });
+
+    /**
+     * Returns the rings that the user is registered to.
+     * The req.body must contains the following:
+     * {
+     *  social_id: value
+     *  social_type: value (facebook/twiter/..)
+     *  token: value
+     * }
+     */
+    app.post('/my_rings', jsonParser ,function(req,res){
+
+        // Validate if registered
+        var user = req.body;
+        var rings_info = myDB.getUserRings(user.social_id, user.social_type);
+        if (rings_info == []){
+
+            return {is_registered:false};
+        }
+
+        // Validate the user Token
+        if (!validateUserToken(user.social_id, user.social_type, user.token )){
+            return {is_registered:false}; //todo: maybe return other error
+        }
+
+        // Return the user its public key and encrypted_private_key
+        return {rings:rings_info, is_registered:true};
+    });
+
+    this.sockets_by_ring = {};
 
     /*******************************Help Methods********************************/
 
     /***
-     *  Get's the token of a facebook user by facebook_id
-     * @param facebook_id
-     * @returns {string} - the token
      */
-    function getFacebookToken(facebook_id){
+    function validateUserToken(social_id,social_type,token){
         // todo: implement
-        var token = '';
-        return token;
+        return true;
     }
 
     /***
-     * Get's the city of a facebook user by facebook_id
-     * @param facebook_id
-     * @returns {string}
+     * Adds an active socket of a user to sockets_by_ring
+     * @param ring
+     * @param user_socket
      */
-    function getUserCityByFacebookID(facebook_id){
-        // todo: implement
-        var token = getFacebookToken(facebook_id);
-        var city = '';
-        return city.toLowerCase();
-    }
+    function addUserSocketByRing(ring, user_socket){
 
-    /***
-     * Removes from users a user by its socket. should be called when a user is disconnected.
-     * @param socket - the disconnected user's socket
-     */
-    function removeUserBySocket(socket){
+        console.log("add user socket by ring");
+        user_socket.join(ring.toLowerCase());
 
-        for (var users_by_city in users){
-            for (var j =0; j < users_by_city.length; j++) {
-                if (users_by_city[j].user_socket == socket){
-                    delete users_by_city[j]; //todo: check the delete part
-                    break;
-                }
-            }
-        }
-    }
-
-    /***
-     * Get the city of a user by it's socket
-     * @param socket - the user's socket.
-     * @returns {Function|Buffer.toString} - the city name
-     */
-    function getUserCityBySocket(socket){
-
-        for (var users_by_city in users){
-            for (var j =0; j < users_by_city.length; j++) {
-                if (users_by_city[j].user_socket == socket){
-                    return users_by_city.name.toString // todo: check the name part
-                }
-            }
-        }
-    }
-
-    /***
-     * Finds the public keys of a group by city and returns them.
-     * @param city
-     * @returns {Array} - the public keys
-     */
-    function getPublicKeysOfGroup(city){
-
-        var public_keys = [];
-
-        for (var user in users[city.toLowerCase()]){
-            public_keys.push(user.public_key);
+        if (this.sockets_by_ring[ring.toLowerCase()] == undefined ){
+            this.sockets_by_ring[ring.toLowerCase()] = [];
         }
 
-        return public_keys;
+        this.sockets_by_ring[ring.toLowerCase()].push(user_socket);
     }
 
     /******************************Main running method********************************/
@@ -124,86 +180,87 @@ module.exports =  function(){
      *  Handles the connection, the user messages and disconnection.
      */
     function newConnection(){
+        // handle connection of /chat
         io.on('connection', function(socket){
 
-            handleUserConnection(socket);
-            handleUserMessage(socket);
-            handleUserDisconnection(socket);
-
-        });
+            socket.on("CHAT", function(msg){
+                console.log("inside chat");
+                console.log(msg.ring);
+                // Add the user socket to the users list by the token
+                addUserSocketByRing(msg.ring, socket);
+                handleUserMessage(socket, msg.ring);
+            });
+        })
     };
 
     /***
-     * Receives the CONNECT msg of a new user and saves it's info in users[].
-     * @param socket - the user's socket
+     * Handle a first join to a ring
+     * @param user - the params from the url query {social_id,social_type,public_key,ring,token}.
      */
-    function handleUserConnection(socket){
-        console.log('a user connected');
-        socket.on("CONNECT", function(msg){
+    function joinRing(user){
+        console.log('a user joined a ring');
 
-            var user_info = JSON.parse(msg);
-            var user_city = getUserCityByFacebookID(user_info.facebook_id);
+        if (!validateUserToken(user.token)){
+            return {success: false};
+        }
 
-            user_info.user_city = user_city;
-            user_info.user_socket = socket;
-            users[user_city].push(user_info);
-            //todo: hila publish to other users (add facebook id)
-        });
+        myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.encrypted_private_key, user.ring.toLowerCase());
+        console.log(user);
+
+        // Publish to every ring member the new user details
+
+        var user_to_publish = {
+            social_id: user.social_id,
+            social_type: user.social_type,
+            public_key: user.public_key
+        };
+
+        broadcastRingMessage("NEW_USER",user_to_publish, user.ring);
+
+        return {success: true};
+
     };
 
     /***
-     *  Handles user's messages - SEND_MSG (broadcast message to the group) and PUBLIC_KEYS (return to the user the public keys of it's group).
-     * @param socket - the user's socket
+     * Handles user's messages- SEND_MSG (broadcast message to the ring group)
+     * PUBLIC_KEYS (return to the user the public keys of it's group).
+     * GET_USERS (return to the user the ring's users info).
+     * @param socket
+     * @param ring
      */
-    function handleUserMessage(socket){
-        //todo: remove this later <only before my tests using client.js>
-        socket.on('chat message', function(msg){
-            console.log('message: ' + msg);
-            broadcastGroupMessage(msg, socket);
-        });
+    function handleUserMessage(socket, ring){
+
+        console.log("Handle user requests");
 
         socket.on("SEND_MSG", function(msg){
             console.log('message: ' + msg);
-            broadcastGroupMessage(msg, socket);
+            broadcastRingMessage("RECEIVE_MSG", msg, ring, socket);
         });
 
-        socket.on("PUBLIC_KEYS", function(facebook_id){
-            var group_city = getUserCityByFacebookID(facebook_id);
-            var public_keys = getPublicKeysOfGroup(group_city);
+        socket.on("PUBLIC_KEYS", function(){
+            var public_keys = myDB.getPublicKeysByRing(ring);
+            console.log(public_keys);
             socket.emit("PUBLIC_KEYS", public_keys);
         });
 
-    };
-
-    /***
-     *  Handle a disconnection of a user - remove him from the list users[].
-     * @param socket
-     */
-    function handleUserDisconnection(socket){
-        socket.on('disconnect', function(){
-            console.log('user disconnected');
-
-            //remove the user from the users array.
-            removeUserBySocket(socket);
-            //todo: hila. publish to other users that he left(facebookid)
+        socket.on("GET_USERS", function(){
+           var ring_users = myDB.getUsersSocialInfoByRing(ring);
+            console.log(ring_users);
+            socket.emit("GET_USERS", ring_users);
         });
+
     };
 
     /***
-     * Sending a message to all of the users.
-     * @param msg - the message to send
-     * @param socket - the sending user's socket
+     * Sending a message to all of the users of ring group.
+     * @param msg_type - type of message to broadcast.
+     * @param msg - the msg to send.
+     * @param ring
+     * @param socket - the current user socket (to make sure we don't send him the message too.
      */
-    function broadcastGroupMessage(msg, socket){
-        io.emit('chat message', msg); //todo: remove this line
+    function broadcastRingMessage(msg_type, msg, ring){
 
-        var city = getUserCityBySocket(socket);
-        for (var user in users[city]) {
-
-            if (user.user_socket != socket) {
-                user.user_socket.emit("RECEIVE_MSG", msg);
-            }
-        }
+        io.to(ring).emit(msg_type, msg); //todo: validate it is working
     };
 
     /***

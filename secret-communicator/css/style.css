@@ -223,6 +223,29 @@ p {
   display: none;
 }
 
+
+#aviliable_chats {
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    width: 100%;
+}
+
+#aviliable_chats>ul {
+  width: 100%;
+}
+  
+#chats_list>li >a {
+  padding: 10px;
+  margin: -1px;
+  background-color: #f5f5f5;
+}
+
+#chats_list>li >a:hover {
+  background-color: #D8D8EA;
+  cursor: pointer; cursor: hand; 
+}
+
+
 #facebook_connected{
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
@@ -235,4 +258,10 @@ p {
   
 #facebook_connected_list>li {
   padding: 10px;
+}
+
+
+.ring {
+  background-image: url('../img/choose_ring.jpg');
+  height: 300px;
 }
