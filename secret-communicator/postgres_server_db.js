@@ -9,7 +9,7 @@ module.exports =  (function() {
 
     function init(){
 
-        client = new pgsync.Client();
+        client = new pg.Client();
  
         client.connect(process.env.DATABASE_URL);
         
