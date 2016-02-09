@@ -22,7 +22,7 @@ module.exports =  (function() {
         var idx = 0;
 
         // Get the last index of the ring
-        var content = client.query("SELECT max(index_on_ring) as idx FROM users_info WHERE ring == '" + ring + "';");
+        var content = client.query("SELECT max(index_on_ring) as idx FROM users_info WHERE ring = '" + ring + "';");
         if (content != '' && content.length != 0){
             idx = content[0]["idx"] + 1;
         }
@@ -61,7 +61,7 @@ module.exports =  (function() {
 
     function getPublicKeysByRing(ring){
         console.log("getPublicKeysByRing");
-        var content = client.query("SELECT public_key FROM users_info WHERE ring == '"+ ring + "' ORDER BY index_on_ring;");
+        var content = client.query("SELECT public_key FROM users_info WHERE ring = '"+ ring + "' ORDER BY index_on_ring;");
         console.log(content);   
         if (content == '' || content.length == 0){
             return {"public_keys": []};

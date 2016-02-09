@@ -35,7 +35,7 @@ module.exports =  (function() {
         var idx = 0;
 
         // Get the last index of the ring
-        var content = db.exec("SELECT max(index_on_ring) FROM users_info WHERE ring == '" + ring + "';");
+        var content = db.exec("SELECT max(index_on_ring) FROM users_info WHERE ring = '" + ring + "';");
         if (content[0].values[0][0] != null){
             idx = content[0].values[0][0] + 1;
         }
@@ -81,7 +81,7 @@ module.exports =  (function() {
 
     function getPublicKeysByRing(ring){
 
-        var content = db.exec('SELECT public_key FROM users_info WHERE ring == "'+ ring + '" ORDER BY index_on_ring;');
+        var content = db.exec('SELECT public_key FROM users_info WHERE ring = "'+ ring + '" ORDER BY index_on_ring;');
 
         if (content == ''){
             return {"public_keys": []};
