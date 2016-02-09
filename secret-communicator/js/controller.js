@@ -25,7 +25,7 @@ function afterFacebookLogin(id,tokenId){
     $.post('/my_rings', data)
     .done(function( result ) {
         console.log("my rings:");
-        console.log(result);
+        console.log(result["rings"]);
         // todo: mark the rings that I am already registered too.
     });
     replaceDivs("#ring-container",'#login-container');
@@ -34,6 +34,7 @@ function afterFacebookLogin(id,tokenId){
     }, 200);
     
 }
+
 
 function replaceDivs(divToAppear,divToRemove){
     $(divToRemove).addClass("animated").addClass("fadeOutUpBig");
