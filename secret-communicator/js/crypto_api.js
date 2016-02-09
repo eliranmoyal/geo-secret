@@ -10,25 +10,38 @@ function CryptoApi() {
 */
 
 CryptoApi.prototype.generateKeys = function () {
-    return {"privateKey": "134" , "publicKey": "1234"}
+    var iv = Math.random().toString();
+
+    var key = cryptico.generateRSAKey(iv, rsaKeySize);
+    var myRsa = new NumericalRSA(key);
+    var myTrapDoor = new TrapDoorPermutation(myRsa);
+
+    return {"privateKey": myTrapDoor.toJson(false) , "publicKey": myTrapDoor.toJson(true)};
 }
 
 
-/*
- * validate the message ..
- todo: alex - put some docs here
-*/
+/**
+ * Validate that the ring signature is correct
+ *
+ * @param signature {{message: string, v: string, trapDoors: TrapDoorPermutation[], randVals: string[], encryptedVals: string[]}}
+ */
 CryptoApi.prototype.validateMessage =  function(signature){
-    //todo: return true or false
-    //todo: think. who validated that the signature contains all the correct members for the ring??
+    return validateSign(ringSignatureFromJson(signature));
 
 };
 
-/*
-todo: alex - put some docs here
-*/
-CryptoApi.prototype.signMessage =  function(message,myKeys,otherKeys,myIndex){
-    //todo: return signature object.
+/**
+ * Sign a message using the ring signature
+ *
+ * @param message       message to sign
+ * @param myKey         my rsa key
+ * @param otherKeys     others rsa keys
+ * @param myIndex       my index with respect to the group
+ * @returns {{message: string, v: string, trapDoors: TrapDoorPermutation[], randVals: string[], encryptedVals: string[]}}
+ */
+CryptoApi.prototype.signMessage =  function(message,myKey,otherKeys,myIndex){
+    var signature = sign(message, myKey, myIndex, otherKeys)
+    return signature.toJson();
 }
 
 /**

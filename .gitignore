@@ -1,3 +1,6 @@
 node_modules
 *.sqlite
 *.sqlite-journal
+
+# web storm
+.idea/
