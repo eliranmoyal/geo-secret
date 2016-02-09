@@ -112,7 +112,7 @@ function onMyMessage() {
         getPrivateKeyAndMyIndexFromServer();
     }
     //get all  public keys.
-    pub
+    
     //encrypt and emit
     msg = {
         "msg": text,
