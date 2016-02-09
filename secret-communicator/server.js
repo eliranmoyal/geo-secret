@@ -284,10 +284,10 @@ module.exports =  function(){
      */
     function broadcastRingMessage(msg_type, msg, ring, socket){
 
-        for (var ring_member_socket in this.sockets_by_ring[ring.toLowerCase()]){
+        for (var socket_index = 0; socket_index< this.sockets_by_ring[ring.toLowerCase()].length; socket_index++){
 
-            if (socket != ring_member_socket){
-                ring_member_socket.emit(msg_type, msg);
+            if (socket != this.sockets_by_ring[ring.toLowerCase()][socket_index]){
+                this.sockets_by_ring[ring.toLowerCase()][socket_index].emit(msg_type, msg);
             }
         }
        // io.to(ring).emit(msg_type, msg); //todo: validate it is working
