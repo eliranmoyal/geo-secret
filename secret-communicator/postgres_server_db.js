@@ -72,19 +72,8 @@ module.exports =  (function() {
             return {};
         }
 
-        var user_info_json = "{ ";
-        var len = content[0].columns.length;
-        for( var i = 0; i< len; i++){
-            user_info_json += '"' + content[0].columns[i] + '"' + ':"' + content[0].values[0][i] + '"';
-
-            if ( i+1 != len){ // if not the last
-                user_info_json += ',';
-            }
-        }
-
-        user_info_json += " }";
-
-        return JSON.parse(user_info_json);
+        
+        return content[0];
     }
 
     function getUserRings(social_id, social_type){
