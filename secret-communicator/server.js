@@ -14,9 +14,23 @@ module.exports =  function(){
     var app = express();
     var http = require('http').Server(app);
     var io = require('socket.io')(http);
-    var myDB = require('./server_db.js');
 
-    myDB.init();
+    var myDB = getDB();
+    function getDB () {
+        //todo: find another env..
+        var db;
+        if(process.env.PORT){
+            console.log("on production");
+            db = require('./postgres_server_db');
+        }
+        else {
+            db = require('./server_db.js');
+        }
+        db.init();
+        return db;
+    }
+
+    
 
     //TODO: remove this, just checking
    /*console.log("new User: " + JSON.stringify(myDB.addNewUser("id4","social4","public4","private4","tel-aviv")));

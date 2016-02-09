@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "4.10.2",
     "socket.io": "^1.3.7",
+    "pg-sync":"0.2.0",
     "body-parser":"1.14.2"
   }
 }
