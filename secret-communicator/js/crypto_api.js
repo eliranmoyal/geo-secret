@@ -46,9 +46,6 @@ CryptoApi.prototype.signMessage =  function(message,myKey,otherKeys,myIndex){
 }
 
 function xorStringPermutation(password, privateKeyStr) {
-    password = password.toString(2);
-    privateKeyStr = privateKeyStr.toString(2);
-
     var finalPassword = password;
 
     while (finalPassword.length < privateKeyStr.length) {
@@ -75,7 +72,7 @@ password ->(need salt?) pbkdf2 -> some kind of symmetric encryption for privateK
 */
 
 CryptoApi.prototype.encryptKey = function(password,privateKey){
-    privateKeyStr = JSON.stringify(privateKey);
+   var privateKeyStr = JSON.stringify(privateKey);
     return xorStringPermutation(password, privateKeyStr);
 }
 
