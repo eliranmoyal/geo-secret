@@ -5,6 +5,9 @@ var facebookToken;
 var cryptoApi = new CryptoApi();
 var chatUi = new ChatUi();
 var currentKeys;
+var myIndex;
+var myTrapDoorKey;
+var otherTrapDoors;
 
 function afterFacebookLogin(id,tokenId){
 	
@@ -55,34 +58,63 @@ function joinRing(ringName) {
     if(!chatClient.isInitialized()){
         chatClient.init();
     }
-    chatClient.startChat(ringName,onNewMessage,onNewUser,onUsersOfChat);
+    chatClient.startChat(ringName,onNewMessage,onNewUser,onUsersOfChat,onPublicKeys);
     //async call that will trigger onUsersOfChat
     chatClient.getUsersFromServer();
+    //async call that will trigger onPublicKeys
+    chatClient.getPublicKeysFromServer();
     
     //todo: find ids of group - add them to list
     //init encryption stuff
 }
 
+
+
 function onUsersOfChat (users) {
     console.log("users:");
     console.log(users);
     var allUsers = users.users_info;
+
     for(i=0;i<allUsers.length;i++){
         user = allUsers[i];
         if(user.social_type == "facebook"){
             addFacebookUserToConnectedList(user.social_id);
         }
+
         
     }
 }
 
+
+function onPublicKeys (publicKeys) {
+    trapDoors = []
+    for(i=0;i<publicKeys.length;i++){
+        trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]););
+        //todo: needToCheck if not myTrapDoor and than push
+        trapDoors.push(trapDoor);
+    }
+    otherTrapDoors = trapDoors;
+
+}
+
+function getPrivateKeyAndMyIndexFromServer () {
+    //todo: implement this when hila generate index.
+}
+
+
 function onMyMessage() {
     var text = chatUi.getMessageText();
     chatUi.displayMessage(text,true,undefined);
+    
+    if(myTrapDoorKey == undefined || myIndex == undefined){
+        getPrivateKeyAndMyIndexFromServer();
+    }
+    //get all  public keys.
+    pub
     //encrypt and emit
     msg = {
         "msg": text,
-        "sign": "....call cryptoApi"
+        "sign": "magnificantSignitature"//signMessage(text,myTrapDoorKey,otherKeys,myIndex)
     }
     chatClient.sendMessage(msg);
     //todo: clearMessageText
@@ -109,7 +141,9 @@ function onNewUser (user) {
     if(user.social_type == "facebook"){
        addFacebookToConnectedList(user.social_id)
     }
+
     //add it to the list with the correct index.
+    otherTrapDoors.push(trapDoorFromJson(JSON.parse(user.public_key)));
 }
 
 
@@ -117,11 +151,12 @@ function onNewUser (user) {
 
 function generatePublicKeyAndEncryptedPrivateKey () {
     this.currentKeys = cryptoApi.generateKeys();
+    this.myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
     //todo: call crypto api to encrypt key + add password in this stage.   
     encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
     return {
-        "publicKey": currentKeys["publicKey"],
-        "encrypedPrivateKey" : encrypedKey
+        "publicKey": JSON.stringify(currentKeys["publicKey"]),
+        "encrypedPrivateKey" : JSON.stringify(encrypedKey)
     };
 }
 
