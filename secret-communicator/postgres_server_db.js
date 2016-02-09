@@ -84,7 +84,8 @@ module.exports =  (function() {
             return {};
         }
 
-        
+        console.log(content[0]);
+
         return content[0];
     }
 

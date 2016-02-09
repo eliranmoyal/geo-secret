@@ -120,6 +120,10 @@ module.exports =  function(){
             res.send({is_registered:false}); //todo: maybe return other error
         }
 
+        console.log("chat_credentials");
+        console.log(user_info);
+
+
         // Return the user its public key and encrypted_private_key
         res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
     });
