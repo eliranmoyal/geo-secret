@@ -48,7 +48,7 @@ module.exports =  (function() {
 
     function getPublicKeysByRing(ring){
         console.log("getPublicKeysByRing");
-        var content = client.query('SELECT public_key FROM users_info WHERE ring == "'+ ring + '";');
+        var content = client.query("SELECT public_key FROM users_info WHERE ring == '"+ ring + "';");
         console.log(content);   
         if (content == '' || content.length == 0){
             return {"public_keys": []};
@@ -65,7 +65,7 @@ module.exports =  (function() {
 
     function getUserInfo(social_id, social_type, ring){
         console.log("getUserInfo");
-        var content = client.query('SELECT * FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '" and ring = "' + ring+ '";');
+        var content = client.query("SELECT * FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "' and ring = '" + ring+ "';");
         console.log(content);   
         if (content == '' || content.length == 0){
             return {};
@@ -88,7 +88,7 @@ module.exports =  (function() {
 
     function getUserRings(social_id, social_type){
         console.log("getUserRings");
-        var content = client.query('SELECT ring FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '";');
+        var content = client.query("SELECT ring FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "';");
         console.log(content);
         if (content == '' || content.length == 0){
             return [];
@@ -104,7 +104,7 @@ module.exports =  (function() {
 
     function getUsersSocialInfoByRing(ring){
         console.log("getUsersSocialInfoByRing");
-        var content = client.query('SELECT social_id, social_type FROM users_info WHERE ring = "' + ring+ '";');
+        var content = client.query("SELECT social_id, social_type FROM users_info WHERE ring = '" + ring+ "';");
         console.log(content);
 
         if (content == ''){
