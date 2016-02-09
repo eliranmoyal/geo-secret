@@ -97,7 +97,7 @@ module.exports =  (function() {
 
     function getUserRings(social_id, social_type){
         console.log("getUserRings");
-        var content = client.query("SELECT ring FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "';");
+        var content = client.query("SELECT distinct(ring) FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "';");
         console.log(content);
         if (content == '' || content.length == 0){
             return [];
