@@ -89,7 +89,7 @@ function onUsersOfChat (users) {
 function onPublicKeys (publicKeys) {
     trapDoors = []
     for(i=0;i<publicKeys.length;i++){
-        trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]););
+        trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
         //todo: needToCheck if not myTrapDoor and than push
         trapDoors.push(trapDoor);
     }
