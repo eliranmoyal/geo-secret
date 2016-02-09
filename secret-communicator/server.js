@@ -134,16 +134,16 @@ module.exports =  function(){
         var rings_info = myDB.getUserRings(user.social_id, user.social_type);
         if (rings_info == []){
 
-            return {is_registered:false};
+            res.send( {is_registered:false});
         }
 
         // Validate the user Token
         if (!validateUserToken(user.social_id, user.social_type, user.token )){
-            return {is_registered:false}; //todo: maybe return other error
+            res.send( {is_registered:false}); //todo: maybe return other error
         }
 
         // Return the user its public key and encrypted_private_key
-        return {rings:rings_info, is_registered:true};
+        res.send({rings:rings_info, is_registered:true});
     });
 
     this.sockets_by_ring = {};
