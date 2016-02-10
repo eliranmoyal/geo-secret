@@ -130,14 +130,14 @@ function onUsersOfChat (users) {
 }
 
 
-function onPublicKeys (publicKeys) {
-    console.log(publicKeys);
+function onPublicKeys (publicKeysObj) {
+    publicKeys = publicKeysObj["public_keys"];
     trapDoors = [];
     for(i=0;i<publicKeys.length;i++){
         trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
-
+        console.log(trapDoor);
+        console.log("i:"+ i + " myIndex:"+myIndex);
         if(i != this.myIndex){
-
             trapDoors.push(trapDoor);
         }
     }
