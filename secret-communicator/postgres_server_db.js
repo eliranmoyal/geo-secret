@@ -87,7 +87,7 @@ module.exports =  (function() {
         console.log("getUserInfo");
         var content = client.query("SELECT * FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "' and ring = '" + ring+ "';");
         console.log(content);   
-        if (content == '' || content.length == 0){
+        if (content == '' || content.length == 0 || content == []){
             return {};
         }
 
