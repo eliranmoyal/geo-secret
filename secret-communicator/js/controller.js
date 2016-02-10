@@ -147,7 +147,7 @@ function onMyMessage() {
         //todo: maby need to wait??
         //set timeout and than call signAndEmit
         console.log("start timeout");
-        setTimeout(signAndEmit(text), 20000);
+        setTimeout(signAndEmit, 20000,text);
     }
     //signAndEmit(text);
 }
