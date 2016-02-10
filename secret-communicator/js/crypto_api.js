@@ -17,7 +17,7 @@ CryptoApi.prototype.generateKeys = function () {
     var myRsa = new NumericalRSA(key);
     var myTrapDoor = new TrapDoorPermutation(myRsa);
 
-    return {"privateKey": myTrapDoor.toJson(false) , "publicKey": myTrapDoor.toJson(true)};
+    return {"privateKey": myTrapDoor.toJson(true) , "publicKey": myTrapDoor.toJson(false)};
 }
 
 
