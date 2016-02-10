@@ -146,7 +146,8 @@ function onMyMessage() {
         updateIndexAndMyKey(currentRing);
         //todo: maby need to wait??
         //set timeout and than call signAndEmit
-        setTimeout(signAndEmit(text), 10000);
+        console.log("start timeout");
+        setTimeout(signAndEmit(text), 20000);
     }
     //signAndEmit(text);
 }
