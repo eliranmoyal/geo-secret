@@ -154,7 +154,7 @@ function onMyMessage() {
         console.log("start timeout");
         //setTimeout(signAndEmit, 20000,text);
     }
-    //signAndEmit(text);
+    signAndEmit(text);
 }
 
 function signAndEmit(text){
