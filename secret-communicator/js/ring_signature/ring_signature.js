@@ -84,6 +84,11 @@ function createArrayOfAllTrapDoors(myTrapDoor, myIndex, othersTrapDoor)
         ret.push(othersTrapDoor[i]);
     }
 
+    if (myIndex == othersTrapDoor.length) {
+        ret.push(myTrapDoor);
+    }
+
+
     return ret;
 }
 
