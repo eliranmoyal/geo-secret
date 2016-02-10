@@ -38,9 +38,11 @@ module.exports =  (function() {
         }
 
         var idx = getNextIndexForRing(ring.toLowerCase());
-        var params =  [social_id,social_type,public_key,encrypted_private_key,ring,idx];
+        var params =  [social_id,social_type,public_key,ring,idx];
+        var encrypted_private_key_with_escapes = "'"+encrypted_private_key;
         console.log("new user to db");
-        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index_on_ring) VALUES ($1,$2,$3,E'$4,$5,$6);";
+        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index_on_ring) VALUES ($1,$2,$3,E"+encrypted_private_key_with_escapes+",$4,$5);";
+        console.log("insertQuery:" + insertQuery);
         var stm = client.prepare(insertQuery);
         res = stm.execute(params);
 
