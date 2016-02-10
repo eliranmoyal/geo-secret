@@ -40,7 +40,7 @@ module.exports =  (function() {
         var idx = getNextIndexForRing(ring.toLowerCase());
         var params =  [social_id,social_type,public_key,encrypted_private_key,ring,idx];
         console.log("new user to db");
-        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index_on_ring) VALUES ($1,$2,$3,$4,$5,$6);";
+        insertQuery = "INSERT INTO users_info(social_id, social_type, public_key, encrypted_private_key, ring,index_on_ring) VALUES ($1,$2,$3,E'$4,$5,$6);";
         var stm = client.prepare(insertQuery);
         res = stm.execute(params);
 
