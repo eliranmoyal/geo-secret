@@ -74,8 +74,6 @@ function updateIndexAndMyKey (ringName) {
           .done(function( result ) {
             console.log("chat credentials result:");
             console.log(result);
-            alert(result);
-            alert("Encrypted key: " + result.encrypted_private_key);
             myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
             myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
       });
@@ -225,6 +223,7 @@ $(document).ready(function(){
          
         $.post( "/register", data)
 		  .done(function( result ) {
+                console.log("/register");
 		    console.log("register result:");
             console.log(result);
             if(result.success == true){

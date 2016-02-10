@@ -82,7 +82,8 @@ module.exports =  function(){
      */
      app.post('/register', jsonParser ,function(req,res){
          var user = req.body;
-         console.log(user);
+         console.log("registered on server");
+         console.log("user");
          res.send(joinRing(user));
     });
 
