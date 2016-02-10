@@ -198,7 +198,7 @@ function onNewMessage(data) {
     console.log("Validation response:")
     console.log(validationStatus);
     //var validationStatus = true;
-    chatUi.displayMessage(data.msg.msg,false,validationStatus);
+    chatUi.displayMessage(data.msg,false,validationStatus);
 }
 
 function onNewUser (user) {
