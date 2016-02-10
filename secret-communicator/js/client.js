@@ -57,14 +57,8 @@ SocketChatClient.prototype.getUsersFromServer = function(){
 
 /***
  *  Send a message to the group
- * @param msg   the message
- * @param sign  the user sign
+ * @param msg   {msg: <msg>, sign: <sign>}
  */
-SocketChatClient.prototype.sendMessage = function(msg, sign){
-
-    var msg_obj = {
-        msg: msg,
-        sign: sign
-    }
-    this.client_socket.emit("SEND_MSG",JSON.stringify(msg_obj));
+SocketChatClient.prototype.sendMessage = function(msg){
+    this.client_socket.emit("SEND_MSG",JSON.stringify(msg));
 };

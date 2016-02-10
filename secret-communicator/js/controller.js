@@ -76,7 +76,6 @@ function updateIndexAndMyKey (ringName) {
             console.log(result);
             myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
             myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
-
       });
     
 }
@@ -120,8 +119,6 @@ function onUsersOfChat (users) {
         if(user.social_type == "facebook"){
             addFacebookUserToConnectedList(user.social_id);
         }
-
-        
     }
 }
 
@@ -152,14 +149,14 @@ function onMyMessage() {
 
 function signAndEmit(text){
     //get all  public keys.
-    signature = signMessage(text,myTrapDoorKey,otherTrapDoors,myIndex);
+    var signature = cryptoApi.signMessage(text,myTrapDoorKey,otherTrapDoors,myIndex);
 
-    console.log("signature":)
+    console.log("signature :");
     console.log(signature)
     //encrypt and emit
-    msg = {
-        "msg": text,
-        "sign": signature
+    var msg = {
+        msg: text,
+        sign: signature
     }
 
     chatClient.sendMessage(msg);
@@ -175,15 +172,16 @@ function signAndEmit(text){
 function onNewMessage(data) {
     console.log("onNewMessage");
     console.log(data);
-    //todo: cryptoApiToCheck valdation with data.msg.sign
-    validationStatus = true;
+    // validate msg with data.sign
+    var validationStatus = cryptoApi.validateMessage(data.sign);
+    //var validationStatus = true;
     chatUi.displayMessage(data.msg.msg,false,validationStatus);
 }
 
 function onNewUser (user) {
     //todo: call facebook api. get his image and call it
     if(user.social_type == "facebook"){
-       addFacebookToConnectedList(user.social_id)
+        addFacebookUserToConnectedList(user.social_id)
     }
 
     //add it to the list with the correct index.
@@ -194,8 +192,8 @@ function onNewUser (user) {
 
 
 function generatePublicKeyAndEncryptedPrivateKey () {
-    this.currentKeys = cryptoApi.generateKeys();
-    this.myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
+    currentKeys = cryptoApi.generateKeys();
+    myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
     //todo: call crypto api to encrypt key + add password in this stage.   
     encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
     return {
@@ -210,14 +208,15 @@ $(document).ready(function(){
      $('#registerForm').submit(function (e) {
          e.preventDefault();
          console.log("register...");
-         data = {};
+         var data = {};
          data["token"] = facebookToken;
          data["social_id"] = facebookId;
          data["social_type"] = "facebook";
-         key = generatePublicKeyAndEncryptedPrivateKey();
+         // todo: get a password from the user and encrypt the private key with it.
+         var key = generatePublicKeyAndEncryptedPrivateKey();
          data["public_key"] = key["publicKey"];
          data["encrypted_private_key"] = key["encrypedPrivateKey"];
-         requestedRing =$("#ring").val(); 
+         var requestedRing =$("#ring").val();
          data["ring"] = requestedRing;
          currentRing = requestedRing.toLowerCase();
          console.log(data);

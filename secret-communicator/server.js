@@ -117,7 +117,7 @@ module.exports =  function(){
 
         // Validate the user Token
         if (!validateUserToken(user.social_id, user.social_type, user.token )){
-            res.send({is_registered:false}); //todo: maybe return other error
+            res.send({is_registered:false});
         }
 
         console.log("chat_credentials");
@@ -149,7 +149,7 @@ module.exports =  function(){
 
         // Validate the user Token
         if (!validateUserToken(user.social_id, user.social_type, user.token )){
-            res.send( {is_registered:false}); //todo: maybe return other error
+            res.send( {is_registered:false});
         }
 
         // Return the user its public key and encrypted_private_key
@@ -294,7 +294,7 @@ module.exports =  function(){
                 this.sockets_by_ring[ring.toLowerCase()][socket_index].emit(msg_type, msg);
             }
         }
-       // io.to(ring).emit(msg_type, msg); //todo: validate it is working
+       // io.to(ring).emit(msg_type, msg);
     };
 
     /***
