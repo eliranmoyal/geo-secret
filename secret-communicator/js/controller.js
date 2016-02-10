@@ -74,7 +74,8 @@ function updateIndexAndMyKey (ringName) {
           .done(function( result ) {
             console.log("register result:");
             console.log(result);
-            console.log("Encrypted key: " + result.encrypted_private_key);
+            alert(result);
+            alert("Encrypted key: " + result.encrypted_private_key);
             myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
             myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
       });
