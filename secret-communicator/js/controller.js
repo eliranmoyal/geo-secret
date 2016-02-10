@@ -75,7 +75,11 @@ function updateIndexAndMyKey (ringName) {
           .done(function( result ) {
             console.log("chat credentials result:");
             console.log(result);
-            myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
+            console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
+            decryptResult = cryptoApi.decryptKey("somePassword",result.encrypted_private_key);
+            console.log("CONTROLLER - decryptKey RESULT:");
+            console.log(decryptResult);
+            myTrapDoorKey =  trapDoorFromJson(decryptResult);
             console.log("myTrapDoorKey");
             console.log(myTrapDoorKey);
             myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
@@ -203,9 +207,12 @@ function onNewUser (user) {
 
 function generatePublicKeyAndEncryptedPrivateKey () {
     this.currentKeys = cryptoApi.generateKeys();
-    myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
-    //todo: call crypto api to encrypt key + add password in this stage.   
+    console.log("CONTROLLER - encryptKey:")
+    console.log(this.currentKeys["privateKey"]);
     encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
+    console.log("CONTROLLER = encrypedKeyRESULT:");
+    console.log(encrypedKey);
+    myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
     return {
         "publicKey": JSON.stringify(currentKeys["publicKey"]),
         "encrypedPrivateKey" : JSON.stringify(encrypedKey)

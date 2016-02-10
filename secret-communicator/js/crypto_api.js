@@ -73,6 +73,7 @@ password ->(need salt?) pbkdf2 -> some kind of symmetric encryption for privateK
 
 CryptoApi.prototype.encryptKey = function(password,privateKey){
    var privateKeyStr = JSON.stringify(privateKey);
+   console.log("encrypt key:" + privateKeyStr);
     return xorStringPermutation(password, privateKeyStr);
 }
 
@@ -82,5 +83,6 @@ CryptoApi.prototype.encryptKey = function(password,privateKey){
     or use the public key to sign some stuff and try to decrypt it with the privateKey
 */
 CryptoApi.prototype.decryptKey = function(password,encryptedKey){
-    return JSON.parse(xorStringPermutation(password, encryptedKey));
+    var afterXor = xorStringPermutation(password, encryptedKey);
+    return JSON.parse(afterXor);
 }
