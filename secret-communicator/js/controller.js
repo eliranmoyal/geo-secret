@@ -198,6 +198,8 @@ function onNewMessage(data) {
 }
 
 function onNewUser (user) {
+    console.log("CONTROLLER -- on new user");
+    console.log(user);
     //todo: call facebook api. get his image and call it
     if(user.social_type == "facebook"){
         addFacebookUserToConnectedList(user.social_id)

@@ -25,7 +25,7 @@ SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser,onA
 
     // connect to new_user and call onNewUser
     this.client_socket.on("NEW_USER", function(msg){
-        onNewUser(JSON.parse(msg));
+        onNewUser(msg);
     });
 
     this.client_socket.on("GET_USERS", function(users){
