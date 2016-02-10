@@ -127,13 +127,14 @@ function onUsersOfChat (users) {
 
 
 function onPublicKeys (publicKeys) {
-    trapDoors = []
+    console.log(publicKeys);
+    trapDoors = [];
     for(i=0;i<publicKeys.length;i++){
         trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
         if(i != myIndex)
             trapDoors.push(trapDoor);
     }
-    otherTrapDoors = trapDoors;
+    this.otherTrapDoors = trapDoors;
 
 }
 
@@ -147,7 +148,7 @@ function onMyMessage() {
         //todo: maby need to wait??
         //set timeout and than call signAndEmit
         console.log("start timeout");
-        setTimeout(signAndEmit, 20000,text);
+        //setTimeout(signAndEmit, 20000,text);
     }
     //signAndEmit(text);
 }
