@@ -72,7 +72,7 @@ function updateIndexAndMyKey (ringName) {
      data["ring"] = ringName.toLowerCase();
     $.post( "/chat_credentials", data)
           .done(function( result ) {
-            console.log("register result:");
+            console.log("chat credentials result:");
             console.log(result);
             alert(result);
             alert("Encrypted key: " + result.encrypted_private_key);

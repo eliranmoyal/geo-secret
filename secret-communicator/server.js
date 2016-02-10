@@ -107,7 +107,6 @@ module.exports =  function(){
      */
     app.post('/chat_credentials', jsonParser ,function(req,res){
 
-        console.log("I am here!!!");
         // Validate if registered
         var user = req.body;
         var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
@@ -126,7 +125,8 @@ module.exports =  function(){
 
 
         // Return the user its public key and encrypted_private_key
-        res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
+        //res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
+        res.send( user_info);
     });
 
     /**
