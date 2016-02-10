@@ -32,10 +32,11 @@ module.exports =  (function() {
 
     function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring ){
         // Validate that the user doesn't exist at all:
-        /*if (getUserInfo(social_id,social_type,public_key) != {}){
+        if (getUserInfo(social_id,social_type,public_key) != {}){
+
             console.log("User already inside the ring!");
-            return;
-        }*/
+            //return;
+        }
 
         var idx = getNextIndexForRing(ring.toLowerCase());
         var params =  [social_id,social_type,public_key,encrypted_private_key,ring,idx];

@@ -149,6 +149,10 @@ function onMyMessage() {
 
 function signAndEmit(text){
     //get all  public keys.
+    console.log("text: " + text);
+    console.log("trapdoorekey: " + myTrapDoorKey);
+    console.log("othertrapdoor: " + otherTrapDoors);
+    console.log("index: " + myIndex);
     var signature = cryptoApi.signMessage(text,myTrapDoorKey,otherTrapDoors,myIndex);
 
     console.log("signature :");
