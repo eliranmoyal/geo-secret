@@ -93,7 +93,7 @@ function joinRing(ringName) {
         currentRing = ringName.toLowerCase();
         myIndex = undefined;
         myTrapDoorKey = undefined;
-        otherTrapDoors = undefined;
+        this.otherTrapDoors = undefined;
     }
     updateIndexAndMyKey(ringName);
     console.log("clicked on ring: " + ringName);
@@ -135,11 +135,16 @@ function onPublicKeys (publicKeys) {
     trapDoors = [];
     for(i=0;i<publicKeys.length;i++){
         trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
-        if(i != myIndex)
-            trapDoors.push(trapDoor);
-    }
-    this.otherTrapDoors = trapDoors;
 
+        if(i != this.myIndex){
+
+            trapDoors.push(trapDoor);
+        }
+    }
+    console.log("othertrapdoors:") 
+
+    this.otherTrapDoors = trapDoors;
+    console.log(this.otherTrapDoors) ;
 }
 
 
@@ -160,10 +165,10 @@ function onMyMessage() {
 function signAndEmit(text){
     //get all  public keys.
     console.log("text: " + text);
-    console.log("trapdoorekey: " + myTrapDoorKey);
-    console.log("othertrapdoor: " + otherTrapDoors);
+    console.log("trapdoorekey: " + JSON.stringify(myTrapDoorKey));
+    console.log("othertrapdoor: " + JSON.stringify(this.otherTrapDoors));
     console.log("index: " + myIndex);
-    var signature = cryptoApi.signMessage(text,myTrapDoorKey,otherTrapDoors,myIndex);
+    var signature = cryptoApi.signMessage(text,myTrapDoorKey,this.otherTrapDoors,myIndex);
 
     console.log("signature :");
     console.log(signature)
