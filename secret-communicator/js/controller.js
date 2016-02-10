@@ -202,7 +202,7 @@ function onNewUser (user) {
 
 
 function generatePublicKeyAndEncryptedPrivateKey () {
-    currentKeys = cryptoApi.generateKeys();
+    this.currentKeys = cryptoApi.generateKeys();
     myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
     //todo: call crypto api to encrypt key + add password in this stage.   
     encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
