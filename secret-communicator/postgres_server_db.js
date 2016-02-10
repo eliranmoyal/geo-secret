@@ -24,9 +24,11 @@ module.exports =  (function() {
         // Get the last index of the ring
         query = "SELECT max(index_on_ring) as idx FROM users_info WHERE ring = '" + ring + "';";
         var content = client.query(query);
-        console.log(content);
-        if (content != '' && content.length != 0){
-            idx = content[0]["idx"] + 1;
+        
+        if (content != '' && content.length != 0 ){
+            if(content[0]["idx"]!=undefined && content[0]["idx"]!=null ){
+                idx = content[0]["idx"] + 1;
+            }
         }
         console.log(ring + " next idx: " + idx);
         return idx;
