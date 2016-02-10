@@ -107,6 +107,7 @@ module.exports =  function(){
      */
     app.post('/chat_credentials', jsonParser ,function(req,res){
 
+        console.log("I am here!!!");
         // Validate if registered
         var user = req.body;
         var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
