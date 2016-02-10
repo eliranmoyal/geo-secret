@@ -137,29 +137,33 @@ function onPublicKeys (publicKeys) {
 
 }
 
-function getPrivateKeyAndMyIndexFromServer () {
-    //todo: implement this when hila generate index.
-}
-
 
 function onMyMessage() {
     var text = chatUi.getMessageText();
     chatUi.displayMessage(text,true,undefined);
     
     if(myTrapDoorKey == undefined || myIndex == undefined){
-        getPrivateKeyAndMyIndexFromServer();
+        updateIndexAndMyKey();
+        //todo: maby need to wait??
+        //set timeout and than call signAndEmit
     }
+    signAndEmit(text);
+}
+
+function signAndEmit(text){
     //get all  public keys.
-    
+    signature = signMessage(text,myTrapDoorKey,otherTrapDoors,myIndex);
+
+    console.log("signature":)
+    console.log(signature)
     //encrypt and emit
     msg = {
         "msg": text,
-        "sign": "magnificantSignitature"//signMessage(text,myTrapDoorKey,otherKeys,myIndex)
+        "sign": signature
     }
+
     chatClient.sendMessage(msg);
     //todo: clearMessageText
-    
-
 }
 
 /*
