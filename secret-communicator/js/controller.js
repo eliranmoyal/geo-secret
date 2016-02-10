@@ -65,6 +65,7 @@ function findChats () {
 }
 
 function updateIndexAndMyKey (ringName) {
+    console.log("ring: " + ringName);
     data = {}
      data["token"] = facebookToken;
      data["social_id"] = facebookId;
@@ -140,7 +141,7 @@ function onMyMessage() {
     chatUi.displayMessage(text,true,undefined);
     
     if(myTrapDoorKey == undefined || myIndex == undefined){
-        updateIndexAndMyKey();
+        updateIndexAndMyKey(currentRing);
         //todo: maby need to wait??
         //set timeout and than call signAndEmit
     }
