@@ -31,7 +31,7 @@
     };
     ChatUi.prototype.displayMessage = function (text,mine,sign_status) {
         var $messages, message;
-        if (text.trim() === '') {
+        if (text == undefined || text == '') {
             return;
         }
         $('.message_input').val('');
