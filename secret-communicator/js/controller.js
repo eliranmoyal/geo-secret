@@ -192,6 +192,7 @@ function onNewMessage(data) {
     console.log("onNewMessage");
     console.log(data);
     // validate msg with data.sign
+    console.log(JSON.stringify(data.sign));
     var validationStatus = cryptoApi.validateMessage(data.sign);
 
     console.log("Validation response:")
