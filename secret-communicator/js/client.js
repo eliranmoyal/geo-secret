@@ -20,7 +20,7 @@ SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser,onA
 
     // connect to receive_messages and call onNewMessage
     this.client_socket.on("RECEIVE_MSG", function(msg){
-        onNewMessage(JSON.parse(msg));
+        onNewMessage(msg);
     });
 
     // connect to new_user and call onNewUser
@@ -60,5 +60,5 @@ SocketChatClient.prototype.getUsersFromServer = function(){
  * @param msg   {msg: <msg>, sign: <sign>}
  */
 SocketChatClient.prototype.sendMessage = function(msg){
-    this.client_socket.emit("SEND_MSG",JSON.stringify(msg));
+    this.client_socket.emit("SEND_MSG",msg);
 };

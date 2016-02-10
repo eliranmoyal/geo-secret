@@ -193,6 +193,9 @@ function onNewMessage(data) {
     console.log(data);
     // validate msg with data.sign
     var validationStatus = cryptoApi.validateMessage(data.sign);
+
+    console.log("Validation response:")
+    console.log(validationStatus);
     //var validationStatus = true;
     chatUi.displayMessage(data.msg.msg,false,validationStatus);
 }

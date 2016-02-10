@@ -210,6 +210,8 @@ function sign(message, myTrapDoor, myIndex, othersTrapDoor)
  */
 function validateSign(signature)
 {
+    console.log("RING_SIGNATURE -- inside validateSign");
+    console.log(signature);
     var hash = calcSha1(signature.message);
 
     for (var i = 0; i < signature.trapDoors.length; i++) {
