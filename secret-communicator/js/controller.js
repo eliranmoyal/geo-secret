@@ -76,6 +76,8 @@ function updateIndexAndMyKey (ringName) {
             console.log("chat credentials result:");
             console.log(result);
             myTrapDoorKey =  trapDoorFromJson(cryptoApi.decryptKey("somePassword",result.encrypted_private_key));
+            console.log("myTrapDoorKey");
+            console.log(myTrapDoorKey);
             myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
       });
     
@@ -144,8 +146,9 @@ function onMyMessage() {
         updateIndexAndMyKey(currentRing);
         //todo: maby need to wait??
         //set timeout and than call signAndEmit
+        setTimeout(signAndEmit(text), 10000);
     }
-    signAndEmit(text);
+    //signAndEmit(text);
 }
 
 function signAndEmit(text){
