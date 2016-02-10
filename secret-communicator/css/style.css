@@ -265,3 +265,16 @@ p {
   background-image: url('../img/choose_ring.jpg');
   height: 300px;
 }
+
+.sign_status-true {
+    background-size: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url("../img/lock-green.png");
+}
+.sign_status-false {
+    background-size: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url("../img/lock-red.png");
+}
