@@ -13,7 +13,7 @@
                 $message.addClass(_this.message_side).find('.text').html(_this.text);
                 $('.messages').append($message);
                 if(this.sign_status!=undefined){
-                    $message.addClass("sign_status-" + this.sign_status)
+                    $message.find('.avatar').addClass("sign_status-" + this.sign_status);
                 }
                 return setTimeout(function () {
                     return $message.addClass('appeared');
