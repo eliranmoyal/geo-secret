@@ -94,11 +94,13 @@ module.exports =  (function() {
             public_keys_list.push(content[i]["public_key"]);
         }
 
-        return {"public_keys": keys_list };
+        return {"public_keys": public_keys_list };
     }
 
     function getAllUsersInfo(ring) {
         var content = client.query("SELECT social_id,public_key,encrypted_private_key,index_on_ring FROM users_info WHERE ring = '" + ring+ "';"); 
+        console.log("getAllUsersInfo from ring:" + ring);
+        console.log(content);
         return content;       
     }
 
