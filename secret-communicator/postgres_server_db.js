@@ -86,21 +86,23 @@ module.exports =  (function() {
         var content = client.query("SELECT public_key , encrypted_private_key FROM users_info WHERE ring = '"+ ring + "' ORDER BY index_on_ring;");
         console.log(content);   
         if (content == '' || content.length == 0){
-            return {"public_keys": [] , "encrypted_private_keys": []};
+            return {"public_keys": [] };
         }
 
         var public_keys_list = [];
-        var private_keys_list = [];
         for( var i = 0; i< content.length; i++){
             public_keys_list.push(content[i]["public_key"]);
-            private_keys_list.push(content[i]["encrypted_private_key"]); 
         }
 
-        return {"public_keys": keys_list , "encrypted_private_keys":private_keys_list};
+        return {"public_keys": keys_list };
+    }
+
+    function getAllUsersInfo(ring) {
+        var content = client.query("SELECT social_id,public_key,encrypted_private_key,index_on_ring FROM users_info WHERE ring = '" + ring+ "';"); 
+        return content;       
     }
 
     function getUserInfo(social_id, social_type, ring){
-        console.log("getUserInfo");
         var content = client.query("SELECT * FROM users_info WHERE social_id = '" + social_id +"' and social_type = '"+ social_type + "' and ring = '" + ring+ "';");
         console.log(content);   
         if (content == '' || content.length == 0 || content == []){

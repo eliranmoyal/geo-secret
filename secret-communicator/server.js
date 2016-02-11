@@ -93,16 +93,8 @@ module.exports =  function(){
 
         // Validate if registered
         var user = req.body;
-        var user_info = myDB.getUserInfo(user.social_id, user.social_type, user.ring);
-        if (user_info == {}){
-
-            res.send({is_registered:false});
-        }
-
-        // Validate the user Token
-        if (!validateUserToken(user.social_id, user.social_type, user.token )){
-            res.send({is_registered:false});
-        }
+        var users_info = myDB.getAllUsersInfo(user.social_id, user.social_type, user.ring);
+        
 
         // Return the user its public key and encrypted_private_key
         //res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});

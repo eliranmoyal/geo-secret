@@ -102,14 +102,26 @@ function findChats () {
 
 /*update chat credentials after registeration / joining a ring */
 function updateChatCredentials (result,moveToChat) {
-  decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
+    var found = false;
+    for (var i = result.length - 1; i >= 0; i--) {
+        user_info = result[i];
+        if(user_info.social_type == "facebook" && user_info.social_id == facebookId){
+            found = true;
+            break;
+        }
+
+    }
+    if(!found){
+        alert("You are not part of this ring... please register");
+        return;        
+    }
+  decryptResult = cryptoApi.decryptKey(this.myPassword,user_info.encrypted_private_key);
     if (undefined == decryptResult){
         alert("This is not your password!!");
-
         return;
     }
   myTrapDoorKey =  trapDoorFromJson(decryptResult);
-  myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
+  myIndex = user_info.index_on_ring == undefined? 1 : user_info.index_on_ring
     if(moveToChat){
         replaceDivs("#chat-container","#ring-container");
     }
