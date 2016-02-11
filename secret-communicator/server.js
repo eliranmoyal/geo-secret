@@ -80,25 +80,17 @@ module.exports =  function(){
     });
 
     /**
-     * Returns the public_key and encrypted_private_key of the user.
+     * Returns the public_key social_id and encrypted_private_key for each user of the ring
      * The req.body must contains the following:
      * {
-     *  social_id: value
-     *  social_type: value (facebook/twiter/..)
-     *  token: value
-     *  ring: ring
+     *  ring: ring (string)
      * }
      */
     app.post('/chat_credentials', jsonParser ,function(req,res){
 
-        // Validate if registered
-        var user = req.body;
-        var users_info = myDB.getAllUsersInfo(user.social_id, user.social_type, user.ring);
-        
-
-        // Return the user its public key and encrypted_private_key
-        //res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
-        res.send( user_info);
+        var users_info = myDB.getAllUsersInfo(req.body.ring);
+        // Return for each user the public key , social_id and encrypted_private_key
+        res.send( users_info);
     });
 
     /**
