@@ -240,6 +240,9 @@ p {
   background-color: #f5f5f5;
 }
 
+.registered_ring {
+  background-color: #80E866
+}
 #chats_list>li >a:hover {
   background-color: #D8D8EA;
   cursor: pointer; cursor: hand; 

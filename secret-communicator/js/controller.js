@@ -12,6 +12,7 @@ var currentRing;
 var ringName;
 var myPassword ="somePassword";
 var afterPasswordGivenHandler;
+var myRings = [];
 
 function afterFacebookLogin(id,tokenId){
 	
@@ -29,7 +30,7 @@ function afterFacebookLogin(id,tokenId){
     .done(function( result ) {
         console.log("my rings:");
         console.log(result["rings"]);
-        // todo: mark the rings that I am already registered too.
+        myRings = result["rings"];
     });
     replaceDivs("#ring-container",'#login-container');
     setTimeout(function() {
@@ -58,6 +59,9 @@ function findChats () {
                 ring = rings[i];
                  var li = $('<li>');
                  var a = $('<a>');
+                 if(myRings.indexOf(ring) != -1){
+                    a.addClass("registered_ring");
+                 }
                  a.addClass("chat_name");
                  a.attr("onClick","joinRing('" + ring +"',false)");
                  a.append(ring);
