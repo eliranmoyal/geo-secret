@@ -9,6 +9,7 @@ var myIndex;
 var myTrapDoorKey;
 var otherTrapDoors;
 var currentRing;
+var myPassword ="somePassword";
 
 function afterFacebookLogin(id,tokenId){
 	
@@ -76,7 +77,7 @@ function updateIndexAndMyKey (ringName) {
             console.log("chat credentials result:");
             console.log(result);
             console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
-            decryptResult = cryptoApi.decryptKey("somePassword",result.encrypted_private_key);
+            decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
             console.log("CONTROLLER - decryptKey RESULT:");
             console.log(decryptResult);
             myTrapDoorKey =  trapDoorFromJson(decryptResult);
@@ -88,6 +89,10 @@ function updateIndexAndMyKey (ringName) {
 }
 
 function joinRing(ringName) {
+    /* toggels password modal */
+    $('#passwordModal').modal('toggle');
+    $('#passwordModal').modal('show');
+    
     if(currentRing != ringName.toLowerCase()){
         //joining another ring , and not registered ring.
         currentRing = ringName.toLowerCase();
@@ -112,6 +117,7 @@ function joinRing(ringName) {
     
     //todo: find ids of group - add them to list
     //init encryption stuff
+
 }
 
 
@@ -220,7 +226,7 @@ function generatePublicKeyAndEncryptedPrivateKey () {
     this.currentKeys = cryptoApi.generateKeys();
     console.log("CONTROLLER - encryptKey:")
     console.log(this.currentKeys["privateKey"]);
-    encrypedKey = cryptoApi.encryptKey("somePassword",this.currentKeys["privateKey"]);
+    encrypedKey = cryptoApi.encryptKey(this.myPassword,this.currentKeys["privateKey"]);
     console.log("CONTROLLER = encrypedKeyRESULT:");
     console.log(encrypedKey);
     myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
@@ -228,6 +234,12 @@ function generatePublicKeyAndEncryptedPrivateKey () {
         "publicKey": JSON.stringify(currentKeys["publicKey"]),
         "encrypedPrivateKey" : JSON.stringify(encrypedKey)
     };
+}
+
+function passwordEntered () {
+    this.myPassword = $("#pwd").val();
+    console.log("password changed to:" + this.myPassword);
+    $('#passwordModal').modal('hide');
 }
 
 $(document).ready(function(){

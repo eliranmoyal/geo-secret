@@ -118,7 +118,28 @@
 
 
 
-      </div><!-- end of chat container-->
+      </div><!-- end of register container-->
+       <!-- Modal for password -->
+       <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Enter Password</h4>
+            </div>
+            <div class="modal-body">
+             <form id="registerForm">
+              <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input type="password" class="form-control" id="pwd">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="passwordEntered()">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
       <div id="chat-container" class="main-conainer hidden">
         <div class="col-md-7 col-md-offset-2">
           <div class="chat_window">
