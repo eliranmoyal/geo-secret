@@ -35,7 +35,7 @@ module.exports =  (function() {
         var idx = 0;
 
         // Get the last index of the ring
-        var content = db.exec("SELECT max(index_on_ring) FROM users_info WHERE ring = '" + ring + "';");
+        var content = db.exec("SELECT max(index_on_ring) as idx FROM users_info WHERE ring = '" + ring + "';");
         if (content[0].values[0][0] != null){
             idx = content[0].values[0][0] + 1;
         }
@@ -44,9 +44,9 @@ module.exports =  (function() {
         return idx;
     }
 
-    function addNewUser(idx, social_id, social_type, public_key, encrypted_private_key, ring){
+    function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring){
 
-        //var idx = getNextIndexForRing(ring.toLowerCase());
+        var idx = getNextIndexForRing(ring.toLowerCase());
 
         var params = {
             ':index_on_ring':idx,
@@ -121,7 +121,7 @@ module.exports =  (function() {
 
     function getUserRings(social_id, social_type){
 
-        var content = db.exec('SELECT ring FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '";');
+        var content = db.exec('SELECT distinct(ring) FROM users_info WHERE social_id = "' + social_id +'" and social_type = "'+ social_type + '";');
 
         if (content == ''){
             return [];
@@ -130,7 +130,7 @@ module.exports =  (function() {
         var rings = [];
 
         for( var i = 0; i< content[0].values.length; i++){
-            rings.push(content[0].values[i][0]);
+            rings.push(content[0].values[i][0].trim());
         }
         return rings;
     }
