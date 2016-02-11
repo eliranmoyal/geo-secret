@@ -62,6 +62,10 @@ module.exports =  function(){
         res.sendFile(__dirname + '/privacy_policy.html');
     });
 
+    app.get('/welcome', function(req, res){
+        res.sendFile(__dirname + '/welcome_page.html');
+    });
+
     var bodyParser = require('body-parser');
     var jsonParser = bodyParser.json();
     app.use( bodyParser.json() );       // to support JSON-encoded bodies
