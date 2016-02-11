@@ -66,6 +66,20 @@ function findChats () {
           });
 }
 
+function updateChatCredentials (result) {
+  console.log("chat credentials result:");
+  console.log(result);
+  console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
+  console.log("CONTROLLER - decryptKey password:" +this.myPassword);
+  decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
+  console.log("CONTROLLER - decryptKey RESULT:");
+  console.log(decryptResult);
+  myTrapDoorKey =  trapDoorFromJson(decryptResult);
+  console.log("myTrapDoorKey");
+  console.log(myTrapDoorKey);
+  myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
+}
+
 function updateIndexAndMyKey (ringName) {
     console.log("ring: " + ringName);
     data = {}
@@ -75,17 +89,7 @@ function updateIndexAndMyKey (ringName) {
      data["ring"] = ringName.toLowerCase();
     $.post( "/chat_credentials", data)
           .done(function( result ) {
-            console.log("chat credentials result:");
-            console.log(result);
-            console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
-            console.log("CONTROLLER - decryptKey password:" +this.myPassword);
-            decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
-            console.log("CONTROLLER - decryptKey RESULT:");
-            console.log(decryptResult);
-            myTrapDoorKey =  trapDoorFromJson(decryptResult);
-            console.log("myTrapDoorKey");
-            console.log(myTrapDoorKey);
-            myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
+          updateChatCredentials(result);
       });
     
 }
@@ -246,6 +250,7 @@ function generatePublicKeyAndEncryptedPrivateKey () {
 function passwordEntered () {
     this.myPassword = $("#pwd").val();
     console.log("password changed to:" + this.myPassword);
+    myPassword = this.myPassword;
     $('#passwordModal').modal('hide');
     joinRingAfterPasswordGiven();
 }
