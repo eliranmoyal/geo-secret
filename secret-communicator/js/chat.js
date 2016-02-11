@@ -34,7 +34,9 @@
         if (text == undefined || text == '') {
             return;
         }
-        $('.message_input').val('');
+        if(mine){
+            $('.message_input').val('');    
+        }
         $messages = $('.messages');
         message_side = mine ? 'left' : 'right';
         message = new Message({

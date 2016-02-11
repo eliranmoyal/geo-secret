@@ -1,4 +1,12 @@
 
+/*
+    the controller class
+    it controls the ui states (facebooklogin,registration,chat)
+    and has functions to transafer between tham
+    it contains all data for current chat (currentRing ,currentKey,otherTrapDoors,myTrapDoor )
+    it calls the crypto_api for encrypting/decrypting private key using password
+    it calls the crypto_api for ring signatuare and validation of ring signature
+*/
 var facebookId;
 var chatClient = new SocketChatClient();
 var facebookToken;
@@ -14,6 +22,12 @@ var myPassword ="somePassword";
 var afterPasswordGivenHandler;
 var myRings = [];
 
+
+/*
+    called after successful facebook login
+    moving to register phase
+    and calling server to get all aviliable and registered chats
+*/
 function afterFacebookLogin(id,tokenId){
 	
 	console.log("on controller afterFacebookLogin");
@@ -39,7 +53,9 @@ function afterFacebookLogin(id,tokenId){
     
 }
 
-
+/*
+utility function to move between phases in style..
+*/
 function replaceDivs(divToAppear,divToRemove){
     $(divToRemove).addClass("animated").addClass("fadeOutUpBig");
     setTimeout(function() {
@@ -48,16 +64,18 @@ function replaceDivs(divToAppear,divToRemove){
     }, 200);
 
 }
+
+/* used for find chats  to check which chat are you registered to*/
 function checkIfRegisteredRing (ring) {
     return myRings.indexOf(ring) != -1;
 }
-
+/* used for find chats  to check which chat are you registered to*/
 function setMyRings (rings) {
     this.myRings = rings;
 }
 
+/* find all chats to fill list on register phase */
 function findChats () {
-
     //todo: for each chat get connected user count
     $.get( "/chats")
           .done(function( result ) {
@@ -66,7 +84,7 @@ function findChats () {
                 ring = rings[i];
                  var li = $('<li>');
                  var a = $('<a>');
-                 
+                 //for ui to see if it is already registered
                  if(checkIfRegisteredRing(ring)){
                     a.addClass("registered_ring");
                  }
@@ -82,22 +100,15 @@ function findChats () {
           });
 }
 
+/*update chat credentials after registeration / joining a ring */
 function updateChatCredentials (result) {
-  console.log("chat credentials result:");
-  console.log(result);
-  console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
-  console.log("CONTROLLER - decryptKey password:" +this.myPassword);
   decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
-  console.log("CONTROLLER - decryptKey RESULT:");
-  console.log(decryptResult);
   myTrapDoorKey =  trapDoorFromJson(decryptResult);
-  console.log("myTrapDoorKey");
-  console.log(myTrapDoorKey);
   myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
 }
 
+/* calling server to get my credantials */
 function updateIndexAndMyKey (ringName) {
-    console.log("ring: " + ringName);
     data = {}
      data["token"] = facebookToken;
      data["social_id"] = facebookId;
@@ -110,6 +121,7 @@ function updateIndexAndMyKey (ringName) {
     
 }
 
+/* joins the ring , starting server calls (get all users and keys , initalize sockets) */
 function joinRingAfterPasswordGiven () {
      
     if(currentRing != this.ringName.toLowerCase()){
@@ -120,7 +132,6 @@ function joinRingAfterPasswordGiven () {
         this.otherTrapDoors = undefined;
     }
     updateIndexAndMyKey(ringName);
-    console.log("clicked on ring: " + this.ringName);
     replaceDivs("#chat-container","#ring-container");
     $("#chatTitle").html("Secrets - " + this.ringName);
     //todo: call getUserInfo.....
@@ -134,10 +145,12 @@ function joinRingAfterPasswordGiven () {
     //async call that will trigger onPublicKeys
     chatClient.getPublicKeysFromServer();
     
-    //todo: find ids of group - add them to list
-    //init encryption stuff
 
 }
+/*
+join the ring first we need to know if password was given already (after registration)
+or no password given - its a re-connect from new session
+*/
 function joinRing(ringName,passwordEnterdAlready) {
     this.ringName = ringName;
     if(passwordEnterdAlready){
@@ -154,10 +167,10 @@ function joinRing(ringName,passwordEnterdAlready) {
 }
 
 
-
+/*
+called when server returns users from db
+*/
 function onUsersOfChat (users) {
-    console.log("users:");
-    console.log(users);
     var allUsers = users.users_info;
 
     for(i=0;i<allUsers.length;i++){
@@ -168,49 +181,43 @@ function onUsersOfChat (users) {
     }
 }
 
-
+/*
+    called when server return keys for chat from db
+*/
 function onPublicKeys (publicKeysObj) {
     publicKeys = publicKeysObj["public_keys"];
     trapDoors = [];
     for(i=0;i<publicKeys.length;i++){
         trapDoor = trapDoorFromJson(JSON.parse(publicKeys[i]));
-        console.log(trapDoor);
-        console.log("i:"+ i + " myIndex:"+myIndex);
+        //we dont need our public key
         if(i != this.myIndex){
             trapDoors.push(trapDoor);
         }
     }
-    console.log("othertrapdoors:") 
-
     this.otherTrapDoors = trapDoors;
-    console.log(this.otherTrapDoors) ;
 }
 
-
+/*
+    happen when i enter my message
+*/
 function onMyMessage() {
     var text = chatUi.getMessageText();
     chatUi.displayMessage(text,true,undefined);
     
     if(myTrapDoorKey == undefined || myIndex == undefined){
         updateIndexAndMyKey(currentRing);
-        //todo: maby need to wait??
-        //set timeout and than call signAndEmit
-        console.log("start timeout");
-        //setTimeout(signAndEmit, 20000,text);
+        //todo: in some use cases we need to wait for it
+        // maybe need to transfer signAndEmit for updateIndexAndMyKey
     }
     signAndEmit(text);
 }
 
+/*
+calc signature with cryptoApi and emit it to server
+*/
 function signAndEmit(text){
     //get all  public keys.
-    console.log("text: " + text);
-    console.log("trapdoorekey: " + JSON.stringify(myTrapDoorKey));
-    console.log("othertrapdoor: " + JSON.stringify(this.otherTrapDoors));
-    console.log("index: " + myIndex);
     var signature = cryptoApi.signMessage(text,myTrapDoorKey,this.otherTrapDoors,myIndex);
-
-    console.log("signature :");
-    console.log(signature)
     //encrypt and emit
     var msg = {
         msg: text,
@@ -222,46 +229,33 @@ function signAndEmit(text){
 }
 
 /*
-+    try to validate and return the validation status
- +    maby call server /know  all people . check users/usersIKnow 
- +    and add it to the validationStatus??
- +    displayMessage(text,false,validationStatus)
+    new message from server validate the server and display the message
 */
 function onNewMessage(data) {
-    console.log("onNewMessage");
-    console.log(data);
     // validate msg with data.sign
-    console.log(JSON.stringify(data.sign));
     var validationStatus = cryptoApi.validateMessage(data.sign);
-
-    console.log("Validation response:")
-    console.log(validationStatus);
-    //var validationStatus = true;
     chatUi.displayMessage(data.msg,false,validationStatus);
 }
 
+/*
+    new user has joined the chat
+*/
 function onNewUser (user) {
-    console.log("CONTROLLER -- on new user");
-    console.log(user);
-    //todo: call facebook api. get his image and call it
+    //call facebook api. get his image and name to display on members
     if(user.social_type == "facebook"){
         addFacebookUserToConnectedList(user.social_id)
     }
 
-    //add it to the list with the correct index.
+    //add it to the list of trap doors
     otherTrapDoors.push(trapDoorFromJson(JSON.parse(user.public_key)));
 }
 
-
-
-
+/*
+    generate keys for registration
+*/
 function generatePublicKeyAndEncryptedPrivateKey () {
     this.currentKeys = cryptoApi.generateKeys();
-    console.log("CONTROLLER - encryptKey:")
-    console.log(this.currentKeys["privateKey"]);
     encrypedKey = cryptoApi.encryptKey(this.myPassword,this.currentKeys["privateKey"]);
-    console.log("CONTROLLER = encrypedKeyRESULT:");
-    console.log(encrypedKey);
     myTrapDoorKey = trapDoorFromJson(this.currentKeys["privateKey"]);
     return {
         "publicKey": JSON.stringify(currentKeys["publicKey"]),
@@ -269,14 +263,19 @@ function generatePublicKeyAndEncryptedPrivateKey () {
     };
 }
 
+/*
+    when people click OK on password modal
+*/
 function passwordEntered () {
     this.myPassword = $("#pwd").val();
-    console.log("password changed to:" + this.myPassword);
     myPassword = this.myPassword;
     $('#passwordModal').modal('hide');
     this.afterPasswordGivenHandler();
 }
 
+/*
+create a post request to register a ring
+*/
 function registerToRing () {
     var data = {};
          data["token"] = facebookToken;
@@ -289,13 +288,9 @@ function registerToRing () {
          var requestedRing =$("#ring").val();
          data["ring"] = requestedRing;
          currentRing = requestedRing.toLowerCase();
-         console.log(data);
          
         $.post( "/register", data)
           .done(function( result ) {
-                console.log("/register");
-            console.log("register result:");
-            console.log(result);
             if(result.success == true){
                joinRing(requestedRing.toLowerCase(),true); 
             }
@@ -309,9 +304,11 @@ function registerToRing () {
 function setAfterPasswordHandler (handler) {
     this.afterPasswordGivenHandler = handler;
 }
+
+/*some events registrations*/
 $(document).ready(function(){
 
-    //register form registration
+    //register form - start password modal and eventualy create a post
      $('#registerForm').submit(function (e) {
          e.preventDefault();
          console.log("register...");
@@ -321,7 +318,7 @@ $(document).ready(function(){
          
      });
 
-     //register chat messages calls
+     //register to events to send messages on chat
      $('.send_message').click(function (e) {
             return onMyMessage();
         });
