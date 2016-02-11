@@ -30,7 +30,7 @@ function afterFacebookLogin(id,tokenId){
     .done(function( result ) {
         console.log("my rings:");
         console.log(result["rings"]);
-        myRings = result["rings"];
+        setMyRings(result["rings"]);
     });
     replaceDivs("#ring-container",'#login-container');
     setTimeout(function() {
@@ -48,6 +48,13 @@ function replaceDivs(divToAppear,divToRemove){
     }, 200);
 
 }
+function checkIfRegisteredRing (ring) {
+    return myRings.indexOf(ring) != -1;
+}
+
+function setMyRings (rings) {
+    this.myRings = rings;
+}
 
 function findChats () {
 
@@ -59,7 +66,8 @@ function findChats () {
                 ring = rings[i];
                  var li = $('<li>');
                  var a = $('<a>');
-                 if(myRings.indexOf(ring) != -1){
+                 
+                 if(checkIfRegisteredRing(ring)){
                     a.addClass("registered_ring");
                  }
                  a.addClass("chat_name");
