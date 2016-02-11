@@ -20,7 +20,6 @@ module.exports =  function(){
         //todo: find another env..
         var db;
         if(process.env.PORT){
-            console.log("on production");
             db = require('./postgres_server_db');
         }
         else {
@@ -29,23 +28,6 @@ module.exports =  function(){
         db.init();
         return db;
     }
-
-    
-
-    //TODO: remove this, just checking
-  /*  var idx = myDB.getNextIndexForRing("jerusalem");
-    console.log(idx);
-    myDB.addNewUser(idx, "id5","social5","public5","private5","jerusalem");
-    idx = myDB.getNextIndexForRing("jerusalem");
-    console.log(idx);*/
-
-   /*console.log("new User: " + JSON.stringify(myDB.addNewUser("id4","social4","public4","private4","tel-aviv")));
-    myDB.addNewUser("id5","social5","public5","private5","jerusalem");
-    console.log("rings list: " + JSON.stringify(myDB.getRingsList()));
-    console.log("public keys: " + JSON.stringify(myDB.getPublicKeysByRing("yavne")));
-    console.log("users info: " + JSON.stringify(myDB.getUsersSocialInfoByRing("yavne")));
-    console.log("exists user info: " + JSON.stringify(myDB.getUserInfo("id1", "social1","yavne")));
-    console.log("not exists user info: " + JSON.stringify(myDB.getUserInfo("id", "social","yavne")));*/
 
     app.set('port', (process.env.PORT || 3000));
     app.use("/css",express.static(__dirname +"/css"));
@@ -86,8 +68,6 @@ module.exports =  function(){
      */
      app.post('/register', jsonParser ,function(req,res){
          var user = req.body;
-         console.log("registered on server");
-         console.log("user");
          res.send(joinRing(user));
     });
 
@@ -96,7 +76,6 @@ module.exports =  function(){
      */
     app.get('/chats', jsonParser ,function(req,res){
         var result = myDB.getRingsList();
-        console.log(result);
         res.send(result);
     });
 
@@ -124,10 +103,6 @@ module.exports =  function(){
         if (!validateUserToken(user.social_id, user.social_type, user.token )){
             res.send({is_registered:false});
         }
-
-        console.log("chat_credentials");
-        console.log(user_info);
-
 
         // Return the user its public key and encrypted_private_key
         //res.send( {index_on_ring:user_info.index_on_ring,public_key:user_info.public_key, encrypted_private_key:user_info.encrypted_private_key, is_registered:true});
@@ -214,8 +189,6 @@ module.exports =  function(){
         io.on('connection', function(socket){
 
             socket.on("CHAT", function(msg){
-                console.log("inside chat");
-                console.log(msg.ring);
                 // Add the user socket to the users list by the token
                 addUserSocketByRing(msg.ring, socket);
                 handleUserMessage(socket, msg.ring);
@@ -235,7 +208,6 @@ module.exports =  function(){
         }
 
         myDB.addNewUser(user.social_id, user.social_type, user.public_key, user.encrypted_private_key, user.ring.toLowerCase());
-        console.log(user);
 
         // Publish to every ring member the new user details
 
@@ -260,22 +232,17 @@ module.exports =  function(){
      */
     function handleUserMessage(socket, ring){
 
-        console.log("Handle user requests");
-
         socket.on("SEND_MSG", function(msg){
-            console.log('message: ' + msg);
             broadcastRingMessage("RECEIVE_MSG", msg, ring, socket);
         });
 
         socket.on("PUBLIC_KEYS", function(){
             var public_keys = myDB.getPublicKeysByRing(ring);
-            console.log(public_keys);
             socket.emit("PUBLIC_KEYS", public_keys);
         });
 
         socket.on("GET_USERS", function(){
            var ring_users = myDB.getUsersSocialInfoByRing(ring);
-            console.log(ring_users);
             socket.emit("GET_USERS", ring_users);
         });
 
@@ -300,7 +267,6 @@ module.exports =  function(){
                 this.sockets_by_ring[ring.toLowerCase()][socket_index].emit(msg_type, msg);
             }
         }
-       // io.to(ring).emit(msg_type, msg);
     };
 
     /***

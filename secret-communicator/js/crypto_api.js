@@ -84,5 +84,9 @@ CryptoApi.prototype.encryptKey = function(password,privateKey){
 */
 CryptoApi.prototype.decryptKey = function(password,encryptedKey){
     var afterXor = xorStringPermutation(password, encryptedKey);
-    return JSON.parse(afterXor);
+    try {
+        return JSON.parse(afterXor);
+    } catch(e) {
+        return undefined;
+    }
 }
