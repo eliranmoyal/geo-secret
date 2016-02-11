@@ -75,10 +75,33 @@ need to use pbkdf2
 password ->(need salt?) pbkdf2 -> some kind of symmetric encryption for privateKey (maby + "correct")
 */
 
+ function hexEncode(str){
+    var hex, i;
+
+    var result = "";
+    for (i=0; i<str.length; i++) {
+        hex = str.charCodeAt(i).toString(16);
+        result += ("000"+hex).slice(-4);
+    }
+
+    return result
+}
+
+function hexDecode(str){
+    var j;
+    var hexes = str.match(/.{1,4}/g) || [];
+    var back = "";
+    for(j = 0; j<hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+
+    return back;
+}
+
 CryptoApi.prototype.encryptKey = function(password,privateKey){
    var privateKeyStr = JSON.stringify(privateKey);
    console.log("encrypt key:" + privateKeyStr);
-    return xorStringPermutation(password, privateKeyStr);
+    return hexEncode(xorStringPermutation(password, privateKeyStr));
 }
 
 /**
@@ -87,7 +110,7 @@ CryptoApi.prototype.encryptKey = function(password,privateKey){
     or use the public key to sign some stuff and try to decrypt it with the privateKey
 */
 CryptoApi.prototype.decryptKey = function(password,encryptedKey){
-    var afterXor = xorStringPermutation(password, encryptedKey);
+    var afterXor = xorStringPermutation(password, hexDecode(encryptedKey));
     try {
         return JSON.parse(afterXor);
     } catch(e) {
