@@ -70,6 +70,9 @@ function findChats () {
                  if(checkIfRegisteredRing(ring)){
                     a.addClass("registered_ring");
                  }
+                 else {
+                   a.addClass("not_registered_ring");  
+                 }
                  a.addClass("chat_name");
                  a.attr("onClick","joinRing('" + ring +"',false)");
                  a.append(ring);
