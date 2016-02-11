@@ -11,6 +11,7 @@ var otherTrapDoors;
 var currentRing;
 var ringName;
 var myPassword ="somePassword";
+var afterPasswordGivenHandler;
 
 function afterFacebookLogin(id,tokenId){
 	
@@ -58,7 +59,7 @@ function findChats () {
                  var li = $('<li>');
                  var a = $('<a>');
                  a.addClass("chat_name");
-                 a.attr("onClick","joinRing('" + ring +"')");
+                 a.attr("onClick","joinRing('" + ring +"',false)");
                  a.append(ring);
                  li.append(a);
                 $('#chats_list').append(li);
@@ -122,12 +123,18 @@ function joinRingAfterPasswordGiven () {
     //init encryption stuff
 
 }
-function joinRing(ringName) {
-    /* toggels password modal */
-    $('#passwordModal').modal('toggle');
-    $('#passwordModal').modal('show');
+function joinRing(ringName,passwordEnterdAlready) {
     this.ringName = ringName;
-    /* now waiting for him to put password and than joinRingAfterPasswordGiven will be called*/
+    if(passwordEnterdAlready){
+        joinRingAfterPasswordGiven();
+    }
+    else {
+       /* toggels password modal */
+        $('#passwordModal').modal('toggle');
+        $('#passwordModal').modal('show');
+        this.afterPasswordGivenHandler = joinRingAfterPasswordGiven;
+        /* now waiting for him to put password and than joinRingAfterPasswordGiven will be called*/
+    }
    
 }
 
@@ -252,16 +259,11 @@ function passwordEntered () {
     console.log("password changed to:" + this.myPassword);
     myPassword = this.myPassword;
     $('#passwordModal').modal('hide');
-    joinRingAfterPasswordGiven();
+    this.afterPasswordGivenHandler();
 }
 
-$(document).ready(function(){
-
-    //register form registration
-     $('#registerForm').submit(function (e) {
-         e.preventDefault();
-         console.log("register...");
-         var data = {};
+function registerToRing () {
+    var data = {};
          data["token"] = facebookToken;
          data["social_id"] = facebookId;
          data["social_type"] = "facebook";
@@ -275,18 +277,31 @@ $(document).ready(function(){
          console.log(data);
          
         $.post( "/register", data)
-		  .done(function( result ) {
+          .done(function( result ) {
                 console.log("/register");
-		    console.log("register result:");
+            console.log("register result:");
             console.log(result);
             if(result.success == true){
-               joinRing(requestedRing.toLowerCase()); 
+               joinRing(requestedRing.toLowerCase(),true); 
             }
             else {
                 alert("could not register to ring " + JSON.stringify(result));
             }
 
-		  });
+          });
+}
+
+function setAfterPasswordHandler (handler) {
+    this.afterPasswordGivenHandler = handler;
+}
+$(document).ready(function(){
+
+    //register form registration
+     $('#registerForm').submit(function (e) {
+         e.preventDefault();
+         console.log("register...");
+         setAfterPasswordHandler(registerToRing);
+         
      });
 
      //register chat messages calls
