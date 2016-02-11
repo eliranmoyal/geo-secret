@@ -99,8 +99,6 @@ module.exports =  (function() {
 
     function getAllUsersInfo(ring) {
         var content = client.query("SELECT social_id,public_key,encrypted_private_key,index_on_ring FROM users_info WHERE ring = '" + ring+ "';"); 
-        console.log("getAllUsersInfo from ring:" + ring);
-        console.log(content);
         return content;       
     }
 
@@ -157,6 +155,7 @@ module.exports =  (function() {
         getRingsList:getRingsList,
         getUserInfo:getUserInfo,
         getUserRings:getUserRings,
+        getAllUsersInfo:getAllUsersInfo,
         getPublicKeysByRing:getPublicKeysByRing,
         getUsersSocialInfoByRing:getUsersSocialInfoByRing
     };

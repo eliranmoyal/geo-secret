@@ -203,6 +203,7 @@ module.exports =  (function() {
         getRingsList:getRingsList,
         getUserInfo:getUserInfo,
         getUserRings:getUserRings,
+        getAllUsersInfo:getAllUsersInfo,
         getPublicKeysByRing:getPublicKeysByRing,
         getUsersSocialInfoByRing:getUsersSocialInfoByRing,
         getNextIndexForRing:getNextIndexForRing

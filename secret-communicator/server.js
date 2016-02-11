@@ -87,7 +87,6 @@ module.exports =  function(){
      * }
      */
     app.post('/chat_credentials', jsonParser ,function(req,res){
-
         var users_info = myDB.getAllUsersInfo(req.body.ring);
         console.log("chat_credentials");
         console.log(users_info);
