@@ -300,6 +300,8 @@ $(document).ready(function(){
      $('#registerForm').submit(function (e) {
          e.preventDefault();
          console.log("register...");
+         $('#passwordModal').modal('toggle');
+        $('#passwordModal').modal('show');
          setAfterPasswordHandler(registerToRing);
          
      });
