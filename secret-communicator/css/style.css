@@ -281,3 +281,8 @@ p {
     background-repeat: no-repeat;
     background-image: url("../img/lock-red.png");
 }
+
+
+.registered_ring {
+  background-color: #80E866
+}
