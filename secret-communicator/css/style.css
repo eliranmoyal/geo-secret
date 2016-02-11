@@ -284,5 +284,9 @@ p {
 
 
 .registered_ring {
-  background-color: #80E866
+  background-color: #80E866;
+}
+
+#register_label {
+  color: white;
 }
