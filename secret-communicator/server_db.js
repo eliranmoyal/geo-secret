@@ -2,6 +2,9 @@
  * Created by Hila on 06/01/2016.
  */
 
+/**
+ * This module is in use for the server as a local db.
+ */
 
 module.exports =  (function() {
     var fs = require('fs');
@@ -9,6 +12,9 @@ module.exports =  (function() {
     var dbFileName = 'test3.sqlite';
     var db;
 
+    /**
+     * Initialized the table in the db.
+     */
     function init(){
         if (fs.existsSync(dbFileName)) {
              var filebuffer = fs.readFileSync(dbFileName);
@@ -30,6 +36,11 @@ module.exports =  (function() {
         fs.writeFileSync(dbFileName, buffer);
     }
 
+    /**
+     * Returns the next index in a given ring
+     * @param ring
+     * @returns {number}
+     */
     function getNextIndexForRing(ring){
 
         var idx = 0;
@@ -44,6 +55,15 @@ module.exports =  (function() {
         return idx;
     }
 
+    /**
+     *
+     * @param social_id
+     * @param social_type
+     * @param public_key
+     * @param encrypted_private_key
+     * @param ring
+     * @returns {*}
+     */
     function addNewUser(social_id, social_type, public_key, encrypted_private_key, ring){
 
         var idx = getNextIndexForRing(ring.toLowerCase());

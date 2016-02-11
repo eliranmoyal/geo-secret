@@ -6,7 +6,9 @@ function SocketChatClient() {
     this.client_socket = undefined;
 }
 
-
+/**
+ * Initialize the client socket
+ */
 SocketChatClient.prototype.init = function() {
     this.client_socket = io();
 }
@@ -15,6 +17,14 @@ SocketChatClient.prototype.isInitialized = function () {
     return this.client_socket != undefined;
 }
 
+/***
+ * Starts a chat by sending "CHAT" msg to the server, and start listening on some messages.
+ * @param ring  - the ring of the chat
+ * @param onNewMessage - UI function to call when a new msg is received.
+ * @param onNewUser    - UI function to call when a new user joins.
+ * @param onAllUsers   - UI function to call when a msg with the users details is received.
+ * @param onPublicKeys - UI function to call when a msg with the users public keys is received.
+ */
 SocketChatClient.prototype.startChat =  function(ring,onNewMessage,onNewUser,onAllUsers,onPublicKeys){
     this.client_socket.emit("CHAT", {ring: ring});
 

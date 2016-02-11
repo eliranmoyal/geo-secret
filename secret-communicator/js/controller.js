@@ -103,6 +103,10 @@ function findChats () {
 /*update chat credentials after registeration / joining a ring */
 function updateChatCredentials (result) {
   decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
+    if (undefined == decryptResult){
+        alert("This is not your password!!");
+        return;
+    }
   myTrapDoorKey =  trapDoorFromJson(decryptResult);
   myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
 }
