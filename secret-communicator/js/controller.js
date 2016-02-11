@@ -101,19 +101,22 @@ function findChats () {
 }
 
 /*update chat credentials after registeration / joining a ring */
-function updateChatCredentials (result) {
+function updateChatCredentials (result,moveToChat) {
   decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
     if (undefined == decryptResult){
         alert("This is not your password!!");
-        replaceDivs("#ring-container","#chat-container");
+
         return;
     }
   myTrapDoorKey =  trapDoorFromJson(decryptResult);
   myIndex = result["index_on_ring"] == undefined?1:result["index_on_ring"]
+    if(moveToChat){
+        replaceDivs("#chat-container","#ring-container");
+    }
 }
 
 /* calling server to get my credantials */
-function updateIndexAndMyKey (ringName) {
+function updateIndexAndMyKey (ringName,moveToChat) {
     data = {}
      data["token"] = facebookToken;
      data["social_id"] = facebookId;
@@ -121,7 +124,7 @@ function updateIndexAndMyKey (ringName) {
      data["ring"] = ringName.toLowerCase();
     $.post( "/chat_credentials", data)
           .done(function( result ) {
-          updateChatCredentials(result);
+          updateChatCredentials(result,moveToChat);
       });
     
 }
@@ -136,8 +139,8 @@ function joinRingAfterPasswordGiven () {
         myTrapDoorKey = undefined;
         this.otherTrapDoors = undefined;
     }
-    replaceDivs("#chat-container","#ring-container");
-    updateIndexAndMyKey(ringName);
+
+    updateIndexAndMyKey(ringName,true);
 
     $("#chatTitle").html("Secrets - " + this.ringName);
     //todo: call getUserInfo.....
@@ -211,7 +214,7 @@ function onMyMessage() {
     chatUi.displayMessage(text,true,undefined);
     
     if(myTrapDoorKey == undefined || myIndex == undefined){
-        updateIndexAndMyKey(currentRing);
+        updateIndexAndMyKey(currentRing,false);
         //todo: in some use cases we need to wait for it
         // maybe need to transfer signAndEmit for updateIndexAndMyKey
     }
