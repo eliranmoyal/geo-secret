@@ -103,8 +103,12 @@ function findChats () {
 /*update chat credentials after registeration / joining a ring */
 function updateChatCredentials (result,moveToChat) {
     var found = false;
+    console.log("on updateChatCredentials");
+    console.log("social_id:" + facebookId);
     for (var i = result.length - 1; i >= 0; i--) {
         user_info = result[i];
+        console.log(user_info);
+        console.log("user_info.social_id == facebookId : " user_info.social_id == facebookId);
         if(user_info.social_type == "facebook" && user_info.social_id == facebookId){
             found = true;
             break;
