@@ -22,7 +22,7 @@ module.exports =  (function() {
         }
         else {
             db = new sql.Database();
-            db.run("CREATE TABLE users_info (index_on_ring INT, social_id char(20), social_type char(20), public_key TEXT,encrypted_private_key TEXT, ring TEXT);");
+            db.run("CREATE TABLE users_info (index_on_ring INT, social_id char(20), social_type char(20), public_key TEXT,encrypted_private_key char(500), ring TEXT);");
             var data = db.export();
             var buffer = new Buffer(data);
             fs.writeFileSync(dbFileName, buffer);
@@ -118,19 +118,19 @@ module.exports =  (function() {
 
 
     function parseUserInfo (info) {
-          var user_info_json = "{ ";
+          var user_info_json = {};
             var len = info.columns.length;
             for( var i = 0; i< len; i++){
-                user_info_json += '"' + info.columns[i] + '"' + ':"' + info.values[0][i] + '"';
-
-                if ( i+1 != len){ // if not the last
-                    user_info_json += ',';
+                var value = info.values[0][i];
+                var key = info.columns[i];
+                if(info.columns[i] == "encrypted_private_key"){
+                    value = value.substr(1,value.length-2);
                 }
+                user_info_json[key]=value;
             }
 
-            user_info_json += " }";
-
-             return JSON.parse(user_info_json);
+            
+             return user_info_json;
     }
 
     function getAllUsersInfo(ring){
