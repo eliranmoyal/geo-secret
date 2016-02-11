@@ -108,7 +108,7 @@ function updateChatCredentials (result,moveToChat) {
     for (var i = result.length - 1; i >= 0; i--) {
         user_info = result[i];
         console.log(user_info);
-        console.log("user_info.social_id == facebookId : " user_info.social_id == facebookId);
+        console.log("user_info.social_id == facebookId : "+ user_info.social_id == facebookId);
         if(user_info.social_type == "facebook" && user_info.social_id == facebookId){
             found = true;
             break;
