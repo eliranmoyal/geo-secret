@@ -105,6 +105,7 @@ function updateChatCredentials (result) {
   decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
     if (undefined == decryptResult){
         alert("This is not your password!!");
+        replaceDivs("#ring-container","#chat-container");
         return;
     }
   myTrapDoorKey =  trapDoorFromJson(decryptResult);
