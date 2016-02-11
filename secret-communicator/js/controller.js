@@ -9,6 +9,7 @@ var myIndex;
 var myTrapDoorKey;
 var otherTrapDoors;
 var currentRing;
+var ringName;
 var myPassword ="somePassword";
 
 function afterFacebookLogin(id,tokenId){
@@ -77,6 +78,7 @@ function updateIndexAndMyKey (ringName) {
             console.log("chat credentials result:");
             console.log(result);
             console.log("CONTROLLER - decryptKey:"+result.encrypted_private_key);
+            console.log("CONTROLLER - decryptKey password:" +this.myPassword);
             decryptResult = cryptoApi.decryptKey(this.myPassword,result.encrypted_private_key);
             console.log("CONTROLLER - decryptKey RESULT:");
             console.log(decryptResult);
@@ -88,28 +90,25 @@ function updateIndexAndMyKey (ringName) {
     
 }
 
-function joinRing(ringName) {
-    /* toggels password modal */
-    $('#passwordModal').modal('toggle');
-    $('#passwordModal').modal('show');
-    
-    if(currentRing != ringName.toLowerCase()){
+function joinRingAfterPasswordGiven () {
+     
+    if(currentRing != this.ringName.toLowerCase()){
         //joining another ring , and not registered ring.
-        currentRing = ringName.toLowerCase();
+        currentRing = this.ringName.toLowerCase();
         myIndex = undefined;
         myTrapDoorKey = undefined;
         this.otherTrapDoors = undefined;
     }
     updateIndexAndMyKey(ringName);
-    console.log("clicked on ring: " + ringName);
+    console.log("clicked on ring: " + this.ringName);
     replaceDivs("#chat-container","#ring-container");
-    $("#chatTitle").html("Secrets - " + ringName);
+    $("#chatTitle").html("Secrets - " + this.ringName);
     //todo: call getUserInfo.....
     myIndex = 0;
     if(!chatClient.isInitialized()){
         chatClient.init();
     }
-    chatClient.startChat(ringName,onNewMessage,onNewUser,onUsersOfChat,onPublicKeys);
+    chatClient.startChat(this.ringName,onNewMessage,onNewUser,onUsersOfChat,onPublicKeys);
     //async call that will trigger onUsersOfChat
     chatClient.getUsersFromServer();
     //async call that will trigger onPublicKeys
@@ -118,6 +117,14 @@ function joinRing(ringName) {
     //todo: find ids of group - add them to list
     //init encryption stuff
 
+}
+function joinRing(ringName) {
+    /* toggels password modal */
+    $('#passwordModal').modal('toggle');
+    $('#passwordModal').modal('show');
+    this.ringName = ringName;
+    /* now waiting for him to put password and than joinRingAfterPasswordGiven will be called*/
+   
 }
 
 
@@ -240,6 +247,7 @@ function passwordEntered () {
     this.myPassword = $("#pwd").val();
     console.log("password changed to:" + this.myPassword);
     $('#passwordModal').modal('hide');
+    joinRingAfterPasswordGiven();
 }
 
 $(document).ready(function(){
