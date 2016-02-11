@@ -46,6 +46,10 @@ CryptoApi.prototype.signMessage =  function(message,myKey,otherKeys,myIndex){
 }
 
 function xorStringPermutation(password, privateKeyStr) {
+
+    if (undefined == password || undefined == privateKeyStr){
+        return undefined;
+    }
     var finalPassword = password;
 
     while (finalPassword.length < privateKeyStr.length) {
