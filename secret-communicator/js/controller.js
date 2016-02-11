@@ -136,8 +136,9 @@ function joinRingAfterPasswordGiven () {
         myTrapDoorKey = undefined;
         this.otherTrapDoors = undefined;
     }
-    updateIndexAndMyKey(ringName);
     replaceDivs("#chat-container","#ring-container");
+    updateIndexAndMyKey(ringName);
+
     $("#chatTitle").html("Secrets - " + this.ringName);
     //todo: call getUserInfo.....
     myIndex = 0;
